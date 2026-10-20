@@ -3,7 +3,7 @@
 project: GRAPE_directionA_VF_denoising_benchmark
 plan_version: "最终版 2026-10-20"
 created: "2026-10-20"
-revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照"]
+revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355"]
 
 paths:
   raw_xlsx: "../VF and clinical information.xlsx"   # 相对 directionA/；原始数据不复制进 data/
@@ -53,7 +53,7 @@ noise_model:
   offset_constant_if_rel_diff_below: 0.20
   fitted_bins_db: [0, 5, 10, 15, 20, 25, 30, .inf]
   spatial_corr_threshold: 0.10   # ≥ 0.10 逐点噪声用指数衰减空间协方差；否则独立
-  target_censor_frac: 0.0399     # 开发集实测删失比例（校准只用开发集）
+  target_censor_frac: 0.0415     # 开发集实测删失比例（校准只用开发集）
 
 simulator:
   template_baseline_method: tobit_left_censored_0db   # 修订 R1

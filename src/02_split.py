@@ -1,89 +1,63 @@
-"""5.3 节：按人划分 -> data/split.json（含平衡日志）。
-
-开发集 70% / 留出集 30%，按“人的基线 MS 三分位 × 是否有 ≥5 次检查的眼”分层随机，种子来自 config。
-开发集内再按人分 5 折；另做全体 144 人的 5 折（只用于真实数据终点）。
-"""
-import numpy as np
-import pandas as pd
+"""02_split.py — 预注册第 3.2 节 / 第 6 部分第 1 条：按人划分开发集/留出集，开发集内 5 折，全体 144 人 5 折。
+分层 = 人的基线 MS 三分位（该人各眼第 1 次检查 MS 的平均）× 是否有 ≥5 次检查的眼。种子来自 config.yaml。
+各层内：按人号数值排序 → 用种子打乱 → 前 n_hold 个进留出集；n_hold 用最大余数法分配，使总数 = round(0.30×144) = 43。"""
+import os, json
+import numpy as np, pandas as pd, yaml
 from scipy import stats
-from common import ROOT, load_config, get_logger, write_json
 
-cfg = load_config()
-sc = cfg["split"]
-seed = cfg["seed"]
-log = get_logger("02_split")
-log.info("seed=%d dev_frac=%.2f", seed, sc["dev_frac"])
-rng = np.random.default_rng(seed)
+HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
+cfg = yaml.safe_load(open(os.path.join(ROOT, "config.yaml"), encoding="utf-8"))
+S = cfg["split"]; SEED = cfg["seed"]
+eyes = pd.read_parquet(os.path.join(ROOT, "data", "eyes.parquet"))
+subj = eyes.groupby("subject").agg(baseline_ms=("baseline_ms", "mean"), max_visits=("n_visits", "max")).reset_index()
+subj["sid_num"] = subj.subject.astype(int); subj = subj.sort_values("sid_num").reset_index(drop=True)
+subj["ms_tertile"] = pd.qcut(subj.baseline_ms, 3, labels=False)
+subj["has_ge5"] = (subj.max_visits >= 5).astype(int)
+subj["stratum"] = subj.ms_tertile.astype(str) + "_" + subj.has_ge5.astype(str)
+rng = np.random.default_rng(SEED)
+N = len(subj); n_hold_total = int(round(S["holdout_frac"] * N))
+strata = sorted(subj.stratum.unique())
+sizes = subj.groupby("stratum").size().loc[strata]
+quota = sizes * S["holdout_frac"]; base = np.floor(quota).astype(int)
+rem = n_hold_total - base.sum(); order = (quota - base).sort_values(ascending=False, kind="stable").index[:rem]
+base.loc[order] += 1
+hold = []
+perm_by_stratum = {}
+for st in strata:
+    ids = subj.loc[subj.stratum == st, "subject"].tolist()
+    p = [ids[i] for i in rng.permutation(len(ids))]; perm_by_stratum[st] = p
+    hold += p[: base.loc[st]]
+hold = set(hold); dev = [s for s in subj.subject if s not in hold]; hold_l = [s for s in subj.subject if s in hold]
+assert len(dev) + len(hold_l) == N and not set(dev) & hold
 
-eyes = pd.read_parquet(ROOT / "data" / "eyes.parquet")
-subj = eyes.groupby("subject").agg(ms_baseline=("ms_baseline", "mean"), max_visits=("n_visits", "max"),
-                                   n_eyes=("eye_id", "size")).reset_index()
-subj["ms_tertile"] = pd.qcut(subj.ms_baseline, 3, labels=[0, 1, 2]).astype(int)
-subj["ge5"] = (subj.max_visits >= 5).astype(int)
-subj["stratum"] = subj.ms_tertile.astype(str) + "_" + subj.ge5.astype(str)
-subj = subj.sort_values("subject", key=lambda s: s.astype(int)).reset_index(drop=True)
+def folds(ids, k):
+    """各层内打乱后轮流分到 k 折（按层依次接续，保证各折大小差 ≤1、层内均衡）。"""
+    sub = subj[subj.subject.isin(ids)]; out = [[] for _ in range(k)]; j = 0
+    for st in strata:
+        s_ids = sub.loc[sub.stratum == st, "subject"].tolist()
+        for i in rng.permutation(len(s_ids)):
+            out[j % k].append(s_ids[i]); j += 1
+    return [sorted(f, key=int) for f in out]
 
-dev, hold = [], []
-for st, g in subj.groupby("stratum", sort=True):
-    ids = g.subject.to_numpy().copy()
-    rng.shuffle(ids)
-    k = int(round(sc["dev_frac"] * len(ids)))
-    dev += list(ids[:k]); hold += list(ids[k:])
-    log.info("层 %s：%d 人 -> 开发 %d / 留出 %d", st, len(ids), k, len(ids) - k)
-assert not set(dev) & set(hold) and len(dev) + len(hold) == 144
+dev_folds = folds(dev, S["dev_n_folds"]); all_folds = folds(subj.subject.tolist(), S["all_n_folds"])
+split = {"seed": SEED, "strata": S["strata"],
+         "dev_subjects": sorted(dev, key=int), "holdout_subjects": sorted(hold_l, key=int),
+         "dev_folds": dev_folds, "all_folds": all_folds}
+with open(os.path.join(ROOT, "data", "split.json"), "w", encoding="utf-8", newline="\n") as f:
+    json.dump(split, f, indent=1, ensure_ascii=False); f.write("\n")
 
-
-def stratified_folds(ids, n_folds, rng):
-    sub = subj.set_index("subject").loc[ids]
-    folds = [[] for _ in range(n_folds)]
-    offset = 0
-    for st, g in sub.groupby("stratum", sort=True):
-        s = g.index.to_numpy().copy(); rng.shuffle(s)
-        for i, x in enumerate(s):
-            folds[(i + offset) % n_folds].append(str(x))
-        offset += len(s)
-    return [sorted(f, key=int) for f in folds]
-
-
-dev_folds = stratified_folds(dev, sc["dev_n_folds"], rng)
-all_folds = stratified_folds(list(subj.subject), sc["all_n_folds"], rng)
-assert sorted(sum(dev_folds, []), key=int) == sorted(dev, key=int)
+e = eyes.copy(); e["set"] = np.where(e.subject.isin(hold), "holdout", "dev")
+ks_eye = stats.ks_2samp(e.loc[e.set == "dev", "baseline_ms"], e.loc[e.set == "holdout", "baseline_ms"])
+ks_sub = stats.ks_2samp(subj.loc[~subj.subject.isin(hold), "baseline_ms"], subj.loc[subj.subject.isin(hold), "baseline_ms"])
+mw = stats.mannwhitneyu(e.loc[e.set == "dev", "n_visits"], e.loc[e.set == "holdout", "n_visits"], alternative="two-sided")
+summary = dict(n_dev_subjects=len(dev), n_holdout_subjects=len(hold_l),
+               n_dev_eyes=int((e.set == "dev").sum()), n_holdout_eyes=int((e.set == "holdout").sum()),
+               ks_baseline_ms_eye_p=float(ks_eye.pvalue), ks_baseline_ms_subject_p=float(ks_sub.pvalue),
+               mw_visits_per_eye_p=float(mw.pvalue),
+               dev_eyes_ge5=int(((e.set == "dev") & (e.n_visits >= 5)).sum()), holdout_eyes_ge5=int(((e.set == "holdout") & (e.n_visits >= 5)).sum()),
+               strata_sizes=sizes.to_dict(), holdout_per_stratum=base.to_dict(),
+               dev_fold_sizes=[len(f) for f in dev_folds], all_fold_sizes=[len(f) for f in all_folds])
+json.dump(summary, open(os.path.join(ROOT, "results", "split_summary.json"), "w"), indent=1)
+print(json.dumps(summary, indent=1))
+assert sorted(sum(dev_folds, []), key=int) == split["dev_subjects"]
 assert sorted(sum(all_folds, []), key=int) == sorted(subj.subject, key=int)
-
-# 平衡
-eyes["set"] = np.where(eyes.subject.isin(dev), "dev", "holdout")
-bal = {}
-lines = ["# 人群划分平衡日志", "", f"种子 {seed}；分层：人的基线 MS（双眼平均）三分位 × 是否有 ≥5 次检查的眼。", "",
-         "| 指标 | 开发集 | 留出集 | 检验 |", "|---|---|---|---|"]
-d, h = eyes[eyes.set == "dev"], eyes[eyes.set == "holdout"]
-rows = [("人数", f"{len(dev)}", f"{len(hold)}", ""),
-        ("眼数", f"{len(d)}", f"{len(h)}", ""),
-        ("检查次数", f"{d.n_visits.sum()}", f"{h.n_visits.sum()}", "")]
-ks_ms = stats.ks_2samp(d.ms_baseline, h.ms_baseline)
-mw_nv = stats.mannwhitneyu(d.n_visits, h.n_visits)
-rows += [("基线 MS 中位（IQR）", f"{d.ms_baseline.median():.1f}（{d.ms_baseline.quantile(.25):.1f}–{d.ms_baseline.quantile(.75):.1f}）",
-          f"{h.ms_baseline.median():.1f}（{h.ms_baseline.quantile(.25):.1f}–{h.ms_baseline.quantile(.75):.1f}）", f"KS p={ks_ms.pvalue:.2f}"),
-         ("基线 MS 均值±SD", f"{d.ms_baseline.mean():.1f}±{d.ms_baseline.std():.1f}", f"{h.ms_baseline.mean():.1f}±{h.ms_baseline.std():.1f}", ""),
-         ("每眼检查次数 中位（均值）", f"{d.n_visits.median():.0f}（{d.n_visits.mean():.2f}）", f"{h.n_visits.median():.0f}（{h.n_visits.mean():.2f}）", f"MWU p={mw_nv.pvalue:.2f}")]
-for k in (4, 5, 6):
-    rows.append((f"≥{k} 次检查的眼", f"{(d.n_visits>=k).sum()}（{100*(d.n_visits>=k).mean():.0f}%）",
-                 f"{(h.n_visits>=k).sum()}（{100*(h.n_visits>=k).mean():.0f}%）", ""))
-rows.append(("PLR2 进展眼", f"{int(d.PLR2.sum())}（{100*d.PLR2.mean():.0f}%）", f"{int(h.PLR2.sum())}（{100*h.PLR2.mean():.0f}%）", ""))
-rows.append(("闭角型（ACG）眼", f"{(d.category=='ACG').sum()}", f"{(h.category=='ACG').sum()}", ""))
-rows.append(("随访年数 中位", f"{d.followup_years.median():.2f}", f"{h.followup_years.median():.2f}", ""))
-for r in rows:
-    lines.append("| " + " | ".join(r) + " |")
-lines += ["", "开发集 5 折人数：" + " / ".join(str(len(f)) for f in dev_folds),
-          "全体 5 折人数：" + " / ".join(str(len(f)) for f in all_folds),
-          "", "验收：两组的人无交集 ✅；基线 MS 与检查次数分布接近（见上表检验 p 值）。"]
-(ROOT / "logs" / "02_split_balance.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-for r in rows:
-    log.info("%s | dev %s | holdout %s | %s", *r)
-
-out = dict(seed=seed, created="2026-10-20", strata="baseline_ms_tertile x has_eye_ge5_visits",
-           dev_subjects=sorted(map(str, dev), key=int), holdout_subjects=sorted(map(str, hold), key=int),
-           dev_eyes=sorted(d.eye_id), holdout_eyes=sorted(h.eye_id),
-           dev_folds=dev_folds, all_folds=all_folds,
-           balance=dict(ks_ms_baseline_p=ks_ms.pvalue, mwu_n_visits_p=mw_nv.pvalue))
-write_json(out, ROOT / "data" / "split.json")
-log.info("写出 data/split.json：开发 %d 人 %d 眼，留出 %d 人 %d 眼", len(dev), len(d), len(hold), len(h))

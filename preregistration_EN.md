@@ -1,31 +1,28 @@
-# Preregistration: A Specificity-Aligned Benchmark of Denoising Methods for Public Longitudinal Octopus G1 Visual Fields (GRAPE, Direction A)
+# Preregistration: A Specificity-Matched Benchmark of Denoising Methods on Public Octopus G1 Visual Fields (GRAPE, Direction A)
 
-> **Status: draft v2, not yet published.** To be published by the investigator in the public GitHub repository https://github.com/q17632807785-blip/112: this file is committed, the commit is tagged and a release is created, and the release is archived on Zenodo to obtain a DOI (GitHub commit timestamps can be rewritten; the Zenodo archive provides an immutable timestamp). The repository does not contain the raw GRAPE data or any per-subject derived data (`data/*.parquet`, `split.json`); it contains only this file, `config.yaml`, `g1_locations.csv`, and code. Section 6 lists the SHA-256 hashes of the files that are not made public.
-> Date of generation: 2026-10-20 (Asia/Shanghai). Basis: `方向A_研究计划_最终版.md` (Direction A research plan, final version; hereafter "the plan") and Revisions R1 and R2 of 2026-10-20.
-> This file supersedes `preregistration_draft.md`. Before publication, `config.yaml` must be synchronised verbatim with Section 5.
-> *Translation note:* this is an English translation of the Chinese preregistration `preregistration.md`. The Chinese version is authoritative. All numbers and hashes are identical. The YAML block in Section 5 is reproduced verbatim from `config.yaml`; its comments and some string values are in Chinese (scenario names are translated in the prose table of Section 3.4).
+> **English translation.** This is a full translation of `preregistration.md` (Simplified Chinese). In case of any discrepancy, the Chinese version is authoritative. Numbers, mathematical expressions and tables are reproduced verbatim; the YAML block in Part 5 is reproduced verbatim (including its Chinese comments) and is byte-for-byte identical in content to `config.yaml`.
+
+> **Status: draft v2, unpublished.** To be published by the user in the public GitHub repository https://github.com/q17632807785-blip/112: after this file is committed, a tag and a release are created, and the release is archived on Zenodo to obtain a DOI (GitHub commit times can be rewritten; the Zenodo archive provides an immutable timestamp). The repository does not contain the raw GRAPE data or per-person derived data (`data/*.parquet`, `split.json`); it contains only this file, `config.yaml`, `g1_locations.csv` and the code; Part 6 gives the SHA-256 of the files that are not made public.
+> Date generated: 2026-10-20 (Asia/Shanghai). Basis: `方向A_研究计划_最终版.md` (Direction A research plan, final version; hereafter "the plan") and the 2026-10-20 revisions R1 and R2.
+> This file supersedes `preregistration_draft.md`. Before publication, `config.yaml` must be synchronised verbatim with Part 5.
 
 ## 0. Title, data, positioning
 
-- Data: GRAPE (Huang et al., Sci Data 2023;10:520), 263 eyes / 144 subjects / 1115 Octopus 900 G1 visual field examinations (Second Affiliated Hospital of Zhejiang University School of Medicine).
+- Data: GRAPE (Huang et al., Sci Data 2023;10:520), 263 eyes / 144 subjects / 1115 Octopus 900 G1 visual field examinations (Second Affiliated Hospital of Zhejiang University).
 - Positioning:
 
-> On the only public longitudinal Octopus G1 dataset, we establish a specificity-aligned benchmark of visual field denoising methods whose primary endpoint is slope error against simulated ground truth, comparing statistical models with a masked denoising model that handles 0 dB censoring, examination-level global shifts, and spatiotemporal correlation.
+> On the only public longitudinal Octopus G1 dataset, we establish a specificity-matched benchmark of visual field denoising methods whose primary endpoint is slope error against simulated ground truth, comparing statistical models with a masked denoising model that handles 0 dB censoring, examination-level global offsets and spatiotemporal correlation.
 
-- Additional related work: Gwak & Kang, "When to Denoise Longitudinal Visual Field Labels: Anchor-Preserving Supervision under Short Follow-up", MICCAI 2026 OMIA Workshop (open-access full text: https://papers.miccai.org/miccai-2026-sat/paper/OMIA_015.pdf). On the 263 GRAPE eyes, that work applied **empirical Bayes shrinkage to follow-up pointwise slopes (shrinking toward the per-location population mean of the training eyes)**, solely to provide training labels for a ResNet-50 that maps a single fundus photograph to the first visual field; with an eye-level split and three visits, MAE improved slightly by 0.075 dB, and the gain disappeared under a subject-level split. It did not assess slope accuracy, simulated ground truth, specificity-aligned detection, or censoring. The EB comparator of the present study (shrinkage toward the same-cluster mean of the eye) differs from that shrinkage target; an EB-GK variant is additionally included as a descriptive comparator (Section 2.2).
+- Additional related work: Gwak & Kang, "When to Denoise Longitudinal Visual Field Labels: Anchor-Preserving Supervision under Short Follow-up", MICCAI 2026 OMIA Workshop (open-access full text: https://papers.miccai.org/miccai-2026-sat/paper/OMIA_015.pdf). On the 263 GRAPE eyes, that paper applies **empirical Bayes shrinkage to the pointwise slopes of the follow-up segment (shrinking towards the pointwise population mean of the training eyes)**, solely to provide training labels for a ResNet-50 mapping "a single fundus photograph → the first visual field"; with eye-level splitting and 3 examinations the MAE improves slightly by 0.075 dB, and the gain disappears with subject-level splitting. It does not address slope accuracy, simulated ground truth, specificity-matched detection, or censoring modelling. The EB comparator in this study (shrinking towards the mean of the same cluster in the same eye) has a different shrinkage target from that paper; EB-GK is additionally included as a descriptive comparator (Section 2.2).
 
-### 0.1 Prior knowledge of the data before publication (disclosure)
+### 0.1 Knowledge of the data before publication (disclosure)
 
 The investigators had access to the GRAPE data before publishing this preregistration, as detailed below. Apart from this, no competing method has been run on simulated data, and no comparison between methods has been produced.
 
-1. **The v2 project** (2026-10-20 00:39–03:41): on the same data, linear mixed models were used to test whether the fundus photograph at the first visit explains the rate of visual field decline (244-eye cohort); the primary test gave a subject-level permutation p = 0.085. That project computed the MS residual SD, slope reliability, and the signal ceiling.
-2. **Data facts** (Section 1 of the plan): summary statistics were computed on **all 263 eyes**, including the distribution of number of examinations, the censoring fraction, MS residual SD, slope SD and standard error, pointwise residual SD, examination-level global shift SD, and inter-point residual correlation. These computations preceded the population split, so subjects in the hold-out set contributed to these numbers in aggregate form; no individual-eye results of the hold-out set were examined.
-3. **Phase-1 data steps** (2026-10-20 12:01–12:11): construction of the long table, G1 location mapping and its three validation checks (the neighbour residual correlation was computed on all examinations), the population split, and the noise model (development set only). The noise-model script includes a self-check simulation: data generated from the noise model are used to re-estimate the global shift SD and the censoring fraction (results in Section 6, item 4); this concerns only the noise model itself, and no competing method was run.
-4. **Pilot run by another execution agent (`grape_pilot`)**: another execution agent (view1) working for the same user ran a pilot on the GRAPE data in a `grape_pilot` directory in its execution environment, from approx. 11:50 to 13:33 Beijing time on 2026-10-20 (last computational output 13:31; interrupted and resumed approx. 12:47–12:53); two summary documents were subsequently written at 15:25 and 15:34:45. The pilot went beyond checking that the code runs: judging from file names only, it includes G1-MST training and inference, a B4 variance-component step, and evaluation summaries. Its code is not the implementation described in this preregistration.
-   - **Sealing**: the whole directory was sealed at 15:46 (`grape_pilot_sealed.tar.gz`, 29,857 files, SHA-256 `a8873d3e9335bcede283d3d879ef34a189edc7208dcc45dfee5b4ffaaa0cb24f`, per-file list `grape_pilot_manifest.sha256`); copies outside the directory are recorded by SHA-256 in `sealed/external_copies.sha256`; an earlier seal at 13:11 was superseded because the directory was written to after it, and is kept unchanged (see Revisions S1 and S2).
-   - **Timing**: draft v2 of this preregistration (including the hypotheses, testing order, and analysis plan) was delivered to the execution agent at 13:05:22 on 2026-10-20 (basis: modification time of the attachment file; the work log records receipt at 13:06–13:07). Subsequent changes were limited to synchronising `config.yaml` with Section 5, filling in hashes, the English translation, and this disclosure. According to file modification times, output files appeared in the pilot directory from 11:51 onward, i.e. before v2 was delivered; its last computational output (13:31) postdates the delivery of v2.
-   - **Exposure**: according to the investigator, the investigator has not read any pilot outputs. The execution agent opened `pilot_report.md` (modified 11:59:33) once, at approx. 12:40–13:05 (time not precisely recorded), to describe the pilot in the work log; the log records only that "the pipeline runs end to end; numbers are not interpreted". No other file in the directory or in the external copies has been opened since, and sealing involved listing only file names, sizes, and hashes. The initial draft of this preregistration (approx. 12:11) and Revisions R1 and R2 (12:39) predate this access.
-   - **Use**: the investigator decided at 15:47 not to view or use any pilot results, and reaffirmed this at 15:57 and 16:03; according to the investigator, no content of this preregistration was changed on the basis of pilot results.
+1. **v2 project** (2026-10-20 00:39–03:41): on the same data, a linear mixed model was used to test whether the fundus photograph at the first visit explains the rate of visual field decline (244-eye definition); the primary test gave a subject-level permutation p = 0.085. That project computed the MS residual SD, slope reliability and the signal ceiling.
+2. **Data facts** (Section 1 of the plan): on **all 263 eyes**, summary statistics were computed, including the distribution of the number of examinations, the censoring proportion, MS residual SD, slope SD and standard error, pointwise residual SD, examination-level global offset SD, and inter-point residual correlations. These computations took place before the subject split, so the held-out subjects entered these numbers in summary form; no result for any individual held-out eye was viewed.
+3. **Stage 1 data steps** (2026-10-20 16:15–16:35): construction of the long table, G1 location mapping and its three validations (the neighbouring-point residual correlation was computed using all examinations), the subject split, and the noise model (development set only). The noise model script includes a self-check simulation: data are generated from the noise model and the global offset SD and the censoring proportion are re-estimated (results in Part 6, item 4); this concerns only the noise model itself and no competing method was run.
+4. **Pipeline smoke test** (2026-10-20 11:50–12:35): before publication, a single pipeline smoke test was run on the GRAPE data, solely to check whether the code could run end to end from scratch. The outputs of that test were not sealed and were deleted on 2026-10-20; the investigators never viewed any of the values in them. The code of that test is not the implementation described in this preregistration, and its outputs are not used in any analysis.
 
 ---
 
@@ -33,44 +30,44 @@ The investigators had access to the GRAPE data before publishing this preregistr
 
 ### 1.1 Primary endpoint H1
 
-**H1**: On `sim_test`, with slopes estimated from exactly 4 examinations for every simulated series, the **root mean square error of cluster-level slopes** (10 clusters, dB/year) of G1-MST is lower than that of B4.
+**H1**: On `sim_test`, with the slope of every simulated series estimated using all 4 examinations, the **root mean squared error of the cluster-level slopes** (10 clusters, dB/year) is lower for G1-MST than for B4.
 
-- **Computation of RMSE**: for each scenario \(s\), \( \mathrm{MSE}_s = \) the mean of \( (\hat b - b_{true})^2 \) over all series × 10 clusters of that scenario (the 10 clusters are weighted equally, not by number of points); the 8 scenarios are combined with equal weights: \( \mathrm{RMSE} = \sqrt{\tfrac18 \sum_s \mathrm{MSE}_s} \). \( \sqrt{\mathrm{MSE}_s} \) is also reported per scenario.
-- **Seeds**: for G1-MST, the RMSE is computed separately for each of the 5 seeds and the 5 RMSEs are averaged (the estimates of the 5 seeds are not first averaged into an ensemble). Methods that do not require training seeds are computed once.
+- **Computation of the RMSE**: for each scenario \(s\), \( \mathrm{MSE}_s = \) the mean of \( (\hat b - b_{true})^2 \) over all series of that scenario × 10 clusters (the 10 clusters are equally weighted, not weighted by number of points); the 8 scenarios are pooled with equal weights: \( \mathrm{RMSE} = \sqrt{\tfrac18 \sum_s \mathrm{MSE}_s} \). \( \sqrt{\mathrm{MSE}_s} \) is also reported per scenario.
+- **Seeds**: for G1-MST, the RMSE is computed separately for each of the 5 seeds and the 5 RMSEs are then averaged (the estimates of the 5 seeds are not first averaged into an ensemble). Methods that do not require training seeds are computed once.
 - **Statistic**: the difference \( \Delta = \mathrm{RMSE}_{G1\text{-}MST} - \mathrm{RMSE}_{B4} \).
-- **Interval**: the subjects of the hold-out set (43 subjects) are resampled with replacement 2000 times; each resample carries all series generated from all template eyes of the sampled subjects, and \( \Delta \) is recomputed; the 2.5% and 97.5% quantiles form the 95% interval.
-- **Decision**: if the upper limit of the interval is < 0, G1-MST is better (H1 holds); if the interval contains 0, the two cannot be distinguished; if the lower limit is > 0, B4 is better. The latter two outcomes both count as H1 not holding.
+- **Interval**: the held-out subjects (43 subjects) are resampled with replacement 2000 times; each resample includes all series generated from all template eyes of the drawn subjects, and \( \Delta \) is recomputed; the 2.5% and 97.5% quantiles form the 95% interval.
+- **Decision**: if the upper limit of the interval < 0, G1-MST is better (H1 holds); if the interval contains 0, the two cannot be distinguished; if the lower limit > 0, B4 is better. In the latter two cases H1 does not hold.
 
-### 1.2 Key secondary endpoints and fixed testing order
+### 1.2 Key secondary endpoints and fixed order
 
-The testing order is fixed as **H1 → H3 → H4 → H2**. "Holds" always means that G1-MST is superior to B4 (the 95% interval lies entirely on the side favouring G1-MST). A hypothesis is formally tested only if the preceding one holds; once a hypothesis does not hold, the subsequent ones are still computed and reported, but only descriptively, with no claim of superiority. Each uses a two-sided 95% interval (equivalent to one-sided α = 0.025), and the fixed sequence keeps the overall type I error rate at or below 0.025 (one-sided).
+The testing order is fixed as **H1 → H3 → H4 → H2**. "Holds" for each item means that G1-MST is superior to B4 (the 95% interval lies entirely on the side favouring G1-MST). The next item is formally tested only if the preceding one holds; once an item does not hold, the subsequent items are still computed and reported, but only descriptively, without concluding "better". Each item uses a two-sided 95% interval (equivalent to one-sided α = 0.025), and the fixed sequence guarantees that the overall type I error rate does not exceed 0.025 (one-sided).
 
-- **H3**: on `sim_test`, at k = 4, detection sensitivity at 95% specificity for the focal progression scenarios (S2, S3, S4, S6, S7 combined), G1-MST versus B4. The decision statistic, threshold, and interval algorithm are given in Section 3.6.
-- **H4 (real-data anchor)**: real eyes with at least 5 examinations (88 eyes); cluster-level trends estimated from the first 4 examinations are extrapolated to predict the observed cluster means of the 5th and later examinations, and MAE is compared (G1-MST − B4). The algorithm is given in Section 3.7.
-- **H2**: root mean square error of the global slope (mean of 59 points), G1-MST versus B4, with the same algorithm and decision rule as H1 (replacing "10 clusters" with a single global value).
+- **H3**: on `sim_test`, at k = 4, the detection sensitivity at 95% specificity in the focal progression scenarios (S2, S3, S4, S6, S7 pooled), G1-MST versus B4. The decision statistic, threshold and interval algorithm are given in Section 3.6.
+- **H4 (real-data anchor)**: for real eyes with at least 5 examinations (88 eyes), the cluster-level trend estimated from the first 4 examinations is extrapolated to predict the observed cluster means at the 5th and subsequent examinations; the MAE is compared (G1-MST − B4). The algorithm is given in Section 3.7.
+- **H2**: root mean squared error of the global slope (average of 59 points), G1-MST versus B4, with the same algorithm and decision rule as H1 (replacing "10 clusters" by a single global value).
 
-**Rationale for placing H2 last (expected to be indistinguishable)**: noise in the global slope arises mainly from shifts of the entire examination — the SD of the examination-level global shift is about 1.45 dB, whereas it would be only 0.44 dB if the 59 points' noise were independent; borrowing information from neighbouring points within the same examination cannot remove a shared shift, and the shrinkage of linear mixed models is already close to optimal. In addition, after removing the global shift, the residual correlation between neighbouring points in the same hemifield at distance ≤ 6° reaches 0.507 (Section 6, item 3), indicating that the pointwise noise itself is spatially correlated (possibly related to the Octopus TOP strategy, which uses neighbouring responses to estimate thresholds; this is only a conjecture), which further reduces the scope for spatial borrowing. The value quoted in Section 0 of the plan, "mean inter-point correlation −0.017 after removing the shift", is an algebraic consequence of row-centring (approximately −1/58) and is not used as evidence for anything.
+**Rationale for placing H2 last (expected to be indistinguishable)**: the noise in the global slope comes mainly from the whole examination shifting together — the global offset SD per examination is about 1.45 dB, whereas it would be only 0.44 dB if the noise at the 59 points were independent; borrowing information from neighbouring points within the same examination cannot remove a common offset, and the shrinkage of a linear mixed model is already close to optimal. Moreover, after removing the global offset, the residual correlation between neighbouring points in the same hemifield at distance ≤ 6° reaches 0.507 (Part 6, item 3), indicating that the pointwise noise itself is spatially correlated (possibly related to the Octopus TOP strategy estimating thresholds using responses at neighbouring points; this is only a conjecture), which further reduces the room for spatial borrowing. The figure "mean inter-point correlation after removing the offset −0.017" quoted in Section 0 of the plan is an algebraic consequence of row-centring (about −1/58) and is not used as evidence for anything.
 
 ### 1.3 Scale of the ground truth
 
-- **Primary analysis (observed scale)**: each point's true trajectory is first floored at 0 dB, i.e. \( \max(f(t), 0) \), and then regressed by OLS on the examination times within the observation window to obtain the pointwise true slope; cluster-level and global true values are the means of the corresponding pointwise true values. H1–H4 and the slope endpoints of Section 1.4 all use this scale.
-- **Descriptive analysis (latent scale)**: the OLS slope of the unfloored true trajectory \( f(t) \). Reported only in supplementary tables.
-- Rationale: after Revision R1 the template baseline may be below 0 dB; a point that stays below 0 dB is always observed as 0, and its latent slope cannot be recovered by any method; using the observed scale for the primary endpoint compares the ability of methods to recover slopes from observable information.
+- **Primary analysis (observed scale)**: the true trajectory of each point is first truncated below 0 dB to 0, i.e. \( \max(f(t), 0) \), and OLS is then performed on the examination times within the observation window to obtain the true pointwise slope; the true cluster-level and global values are the averages of the true values of the corresponding points. H1–H4 and the slope endpoints of Section 1.4 all use this scale.
+- **Descriptive analysis (latent scale)**: the OLS slope of the untruncated true trajectory \( f(t) \). Reported only in supplementary tables.
+- Rationale: after revision R1 the template baseline may lie below 0 dB; a point that remains below 0 dB throughout is always observed as 0, and its latent slope cannot be recovered by any method; with the observed scale as the primary endpoint, what is compared is each method's ability to recover slopes from observable information.
 
 ### 1.4 Other secondary and exploratory endpoints (descriptive only, no formal testing)
 
-- For each method, scenario, and number of examinations (k = 3, 4, 5, 6): bias, root mean square error, and 95% interval coverage (raw and calibrated standard errors) of pointwise, cluster-level, and global slopes. Stratified by true rate, with bias reported specifically for fast-progressing eyes.
+- For each method, each scenario and each number of examinations (k = 3, 4, 5, 6): bias, root mean squared error and 95% interval coverage (raw and calibrated standard errors) of pointwise, cluster-level and global slopes. Stratified by true rate, with bias reported specifically for fast-progressing eyes.
 - The same set of metrics under the latent-scale ground truth (Section 1.3).
-- Real data: detection proportions and Kaplan–Meier curves after calibration to a 5% false-positive rate by visit shuffling (Section 3.8).
-- Real data: pointwise MAE of next-visit visual field prediction (history lengths 2 and 3), stratified by baseline MS tertile and by tertile of the full-series OLS slope, always listing "last value carried forward" (B0).
-- The 50 eyes with at least 6 examinations: odd–even split-half slope reliability (intraclass correlation coefficient).
+- Real data: detection proportions and Kaplan–Meier curves after calibration to a 5% false-positive rate using shuffled visits (Section 3.8).
+- Real data: pointwise MAE of next-visual-field prediction (history lengths 2 and 3), stratified by tertiles of baseline MS and of the full-series OLS slope, always including "last value carried forward" (B0).
+- For the 50 eyes with at least 6 examinations: odd–even split-half slope reliability (intraclass correlation coefficient).
 - Structure–function correlation between the denoised baseline visual field and the four RNFL sectors (Garway-Heath mapping, Spearman correlation, raw versus denoised).
-- Agreement with the official PLR2, PLR3, and MD labels (supplementary table).
+- Agreement with the official PLR2, PLR3 and MD labels (supplementary table).
 - Results of EB-GK on all of the above endpoints (Section 2.2).
 
 ### 1.5 Sample size statement
 
-No formal power calculation is performed. The size of `sim_test` (about 80 eyes × 8 scenarios × 20 replicates) is fixed before generation; the effective resampling unit for the primary interval is the 43 subjects of the hold-out set, so the precision of conclusions is limited by the template diversity of these 43 subjects, which will be reported transparently. The real-data endpoint H4 has only 88 eyes, and its interval is expected to be wide.
+This study does not perform a formal power calculation. The size of `sim_test` (78 eyes × 8 scenarios × 20 repetitions) is fixed before generation; the effective resampling unit for the primary endpoint interval is the 43 held-out subjects, the precision of the conclusions is limited by the template diversity of these 43 subjects, and this will be reported truthfully in the paper. The real-data endpoint H4 has only 88 eyes, and its interval is expected to be wide.
 
 ---
 
@@ -82,240 +79,242 @@ No formal power calculation is performed. The size of `sim_test` (about 80 eyes 
 
 | ID | Method | Key points |
 |---|---|---|
-| B0 | Last value carried forward | Prediction endpoints only |
-| B1 | Pointwise linear regression (PLR) | Only with ≥3 examinations |
+| B0 | Last value carried forward | Used only for prediction endpoints |
+| B1 | Pointwise linear regression (PLR) | Used only with ≥3 examinations |
 | B2 | MS linear regression | Global |
-| B3 | Linear mixed model (MS) | Subject- and eye-level random intercepts and slopes |
-| B4 | Spatial two-level mixed model | Following Zhao 2026: eye-level plus cluster-level random intercepts and slopes, plus an examination-level random intercept; **with a spatial term** (Section 6, item 3) |
-| EB | Empirical Bayes shrinkage of pointwise slopes | Pointwise OLS slopes shrunk toward the cluster mean, weight τ²/(τ²+SE²), τ² estimated from training eyes stratified by sensitivity |
-| B5 | Spatial smoothing followed by PLR | Nearest-neighbour smoothing, simple implementation |
+| B3 | Linear mixed model (MS) | Two-level (subject, eye) random intercepts and slopes |
+| B4 | Spatial two-level mixed model | Following Zhao 2026: eye-level plus cluster-level random intercepts and slopes, plus an examination-level random intercept; **with a spatial term** (Part 6, item 3) |
+| EB | Empirical Bayes shrinkage of pointwise slopes | Pointwise OLS slopes shrunk towards the cluster mean, weight τ²/(τ²+SE²), τ² estimated from training eyes, stratified by sensitivity |
+| B5 | Spatial smoothing followed by PLR | Nearest-neighbour smoothing, simple to implement |
 | MST-S | G1-MST without temporal attention | Equivalent to the single-examination masked autoencoder of Wu 2024 |
 | G1-MST | Proposed model | Section 2.5 |
-| D1 | PoPLR | Detection endpoints only |
+| D1 | PoPLR | Used only for detection endpoints |
 
-**Second batch (if resources permit)**: B6 VAE denoising, B8 Kalman filter, B9 small GRU, B10 deterministic pointwise-token Transformer (point-estimate version of Bern 2026). Methods not completed will be stated with reasons in the paper. No second-batch method enters H1–H4.
+**Second batch (if resources allow)**: B6 VAE denoising, B8 Kalman filter, B9 small GRU, B10 deterministic pointwise-token Transformer (point-estimate version of Bern 2026). Any not done must be stated in the paper with reasons. None of the second-batch methods enters H1–H4.
 
-### 2.2 Descriptive comparator EB-GK (Revision R2)
+### 2.2 Descriptive comparator EB-GK (revision R2)
 
 | ID | Method | Key points |
 |---|---|---|
-| EB-GK | Gwak–Kang-style empirical Bayes shrinkage of pointwise slopes (descriptive comparator) | For each eye and point, the full-series OLS slope \( b \) and its standard error \( s \); shrinkage toward the **population mean slope of the training eyes at that location** \( \mu_p \); prior variance estimated per location \( \tau_p^2 = \max(0,\ \mathrm{var}_{train}(b_p) - \overline{s_p^2}) \); \( b_{GK} = \mu_p + w(b - \mu_p) \), \( w = \tau_p^2/(\tau_p^2 + s^2) \); parameters estimated on training eyes only. Cluster-level and global slopes are obtained by averaging the shrunk pointwise slopes as in Section 2.3 |
+| EB-GK | Gwak–Kang-style empirical Bayes shrinkage of pointwise slopes (descriptive comparator) | For each point of each eye, use the full-series OLS slope \( b \) and standard error \( s \); shrink towards **the population mean slope of the training eyes at that location** \( \mu_p \); the prior variance is estimated per location \( \tau_p^2 = \max(0,\ \mathrm{var}_{train}(b_p) - \overline{s_p^2}) \); \( b_{GK} = \mu_p + w(b - \mu_p) \), \( w = \tau_p^2/(\tau_p^2 + s^2) \); parameters are estimated on training eyes only. Cluster-level and global slopes are obtained by averaging the shrunk pointwise slopes as in Section 2.3 |
 
-- Source: Gwak & Kang, MICCAI 2026 OMIA (OMIA_015). The original work shrinks only follow-up slopes and keeps the first visual field as an "anchor", in order to provide labels for a fundus-photograph model; the present study uses full-series slopes so that it can be compared with other methods on the same slope endpoints.
-- Difference from EB: EB shrinks toward the same-cluster mean of the eye with τ² estimated in three sensitivity strata; EB-GK shrinks toward the training-population mean at that location with τ² estimated per location.
-- **EB-GK is a descriptive comparator only**: it does not enter the H1–H4 fixed-sequence tests and does not take part in the decision point of Section 4.2.
+- Source: Gwak & Kang, MICCAI 2026 OMIA (OMIA_015). The original paper shrinks only the follow-up-segment slopes and keeps the first visual field as an "anchor", in order to provide labels for a fundus-photograph model; this study uses full-series slopes so that it can be compared with the other methods on the same slope endpoints.
+- Difference from EB: EB shrinks towards the mean of the same cluster in the same eye, with τ² estimated in three sensitivity strata; EB-GK shrinks towards the training-population mean at that location, with τ² estimated per location.
+- **EB-GK is a descriptive comparator only**: it does not enter the fixed-sequence tests H1–H4 and does not take part in the decision of Section 4.2.
 
-### 2.3 Common interface and slope definitions
+### 2.3 Unified interface and slope definitions
 
-Each method is implemented as a class that takes a (truncated) series and outputs:
+Each method is implemented as a class that receives a (truncated) series and outputs:
 
 ```python
 class Method:
     def fit(self, train_series: list[Series]) -> None: ...
     def estimate(self, series: Series) -> Estimate: ...
-    # Estimate fields:
-    #   denoised: (n_visits, 59) denoised values (raw values for methods without denoising)
+    # Estimate 字段：
+    #   denoised: (n_visits, 59) 去噪值（没有去噪的方法就是原值）
     #   slope_point, se_point: (59,)
     #   slope_cluster, se_cluster: (10,)
     #   slope_global, se_global: float
-    #   forecast(t_new) -> (59,) predicted values, optionally with sigma
+    #   forecast(t_new) -> (59,) 预测值，可选给 sigma
 ```
+
+(Code comments translated: `Estimate` fields — `denoised`: (n_visits, 59) denoised values (for methods that do not denoise, the raw values); `slope_point, se_point`: (59,); `slope_cluster, se_cluster`: (10,); `slope_global, se_global`: float; `forecast(t_new) -> (59,)` predicted values, optionally with sigma.)
 
 `Series` fields: `eye_id, subject, t (n,), y (n, 59), censored (n, 59) bool, age (n,), iop (n,)`. Censored observations are recorded as 0 dB with `censored = True`.
 
-- **Cluster-level slope** (identical for all methods): the denoised values of each examination are first averaged within each cluster, then regressed on time by OLS. The central point (0,0) belongs to no cluster.
-- **Global slope**: average over the 59 points, then OLS on time.
-- Methods that directly produce cluster-level or pointwise slopes, such as B4, EB, and EB-GK, use their own estimates, which will be stated in the supplementary tables.
-- When estimating slopes or making decisions, every method receives only the series truncated at the current examination in `estimate()`.
-- **Estimation failure**: if a method fails to estimate a series (non-convergence, numerical overflow, etc.), the B1 estimate for that series is used in that method's results, and the failure rate is reported per method × scenario.
+- **Cluster-level slope** (identical for all methods): first average the denoised values of each examination within each cluster, then perform OLS against time. The central point (0,0) does not belong to any cluster.
+- **Global slope**: average the 59 points, then perform OLS against time.
+- Methods such as B4, EB and EB-GK, which directly produce cluster-level or pointwise slopes, use their own estimates; this is stated in the supplementary tables.
+- Whenever any method estimates slopes or makes a decision, only the series truncated at the current examination is passed to `estimate()`.
+- **Estimation failure**: when a method fails to estimate a given series (non-convergence, numerical overflow, etc.), the B1 estimate for that series is used in that method's results instead, and the failure rate is reported by method × scenario.
 
-### 2.4 Implementation of comparator methods
+### 2.4 Implementation of comparators
 
 | Method | Key implementation details |
 |---|---|
-| B0, B1, B2 | B1: pointwise OLS, standard error from the residuals of that point; B2: OLS on MS |
-| B3 | statsmodels `mixedlm`: grouped by subject, random intercept and slope within subject, eye nested. For a new eye, variance components are fixed at the training-set values and only the best linear unbiased prediction (BLUP) for that eye is computed |
-| B4 | Fixed effects: intercept + time. Random effects: eye (intercept, slope), cluster within eye (intercept, slope), examination (intercept), plus a spatial correlation term on the pointwise residuals. Procedure: estimate variance components on training eyes → for a new eye, fix the variance components and compute the BLUP, yielding cluster-level slopes and their standard errors |
-| EB | Pointwise OLS slope \( b \) and standard error \( s \); in three sensitivity strata, prior variance estimated from training eyes \( \tau^2 = \max(0,\ \mathrm{var}(b) - \overline{s^2}) \); shrinkage toward the mean slope of the same cluster in that eye: \( b_{EB} = w b + (1-w)\bar b_{cluster} \), \( w = \tau^2/(\tau^2 + s^2) \) |
-| B5 | Within each examination, each point is replaced by the weighted average of itself and its same-hemifield neighbours within ≤6° (self weight 0.5, neighbours sharing 0.5 equally), followed by PLR |
-| D1 PoPLR | Pointwise OLS one-sided p values; statistic \( S = -\sum \ln p \) (over points with negative slopes only); permutation distribution from 1000 random shuffles of visit order. If R is available, 10 eyes are cross-checked against `visualFields` |
+| B0, B1, B2 | B1: pointwise OLS, standard error from that point's residuals; B2: OLS on MS |
+| B3 | statsmodels `mixedlm`: subject as group, within-subject random intercept and slope, eyes nested. For a new eye, the variance components are fixed at the training-set values and only the best linear unbiased prediction (BLUP) for that eye is computed |
+| B4 | Fixed effects: intercept + time. Random effects: eye (intercept, slope), cluster within eye (intercept, slope), examination (intercept), plus a spatial correlation term for the pointwise residuals. Workflow: estimate variance components on training eyes → for a new eye, fix the variance components and compute BLUPs, giving cluster-level slopes and their standard errors |
+| EB | Pointwise OLS slope \( b \) and standard error \( s \); in three sensitivity strata, the prior variance is estimated from training eyes \( \tau^2 = \max(0,\ \mathrm{var}(b) - \overline{s^2}) \); shrink towards the mean slope of the same cluster in the same eye: \( b_{EB} = w b + (1-w)\bar b_{cluster} \), \( w = \tau^2/(\tau^2 + s^2) \) |
+| B5 | Within each examination, each point is replaced by a weighted average of itself and its neighbours in the same hemifield within ≤6° (own weight 0.5, the remaining 0.5 split equally among neighbours), followed by PLR |
+| D1 PoPLR | Pointwise OLS one-sided p-values; statistic \( S = -\sum \ln p \) (only over points with negative slopes); the visit order is randomly permuted 1000 times to obtain the permutation distribution. If R is available, results for 10 eyes are checked against `visualFields` |
 
-**Implementation of the B4 spatial term and fallbacks (pre-specified rules)**:
-1. Preferred: Matérn spatial correlation in R `spaMM` (within hemifield only; no correlation across the horizontal midline).
-2. In week 3 (2026-11-02 to 11-08), run time is measured on 20 randomly selected development-set eyes and extrapolated linearly in the number of eyes to the variance-component estimation on all development-set training eyes; if the projected time exceeds 24 hours, a conditional autoregressive structure on the neighbour graph (same hemifield, distance ≤ 6°) is used instead.
-3. If variance-component estimation does not converge, then in order: ① the random-effects covariance is made diagonal; ② if still not converged, the conditional autoregressive structure is used.
-4. The option finally adopted is appended as a timestamped revision before any method results are produced, and not changed thereafter.
+**Implementation of the B4 spatial term and fallback (rules fixed in advance)**:
+1. Preferred: Matérn spatial correlation in R `spaMM` (only within a hemifield; no correlation across the horizontal midline).
+2. In week 3 (2026-11-02 to 11-08), run time is measured on 20 randomly chosen development-set eyes and extrapolated linearly by number of eyes to the time required to estimate variance components on all development-set training eyes; if the projected time exceeds 24 hours, a conditional autoregressive structure on the adjacency graph (neighbours = same hemifield, distance ≤ 6°) is used instead.
+3. If variance-component estimation does not converge, in order: ① make the random-effects covariance diagonal; ② if it still does not converge, switch to the conditional autoregressive structure.
+4. The option finally adopted is appended as a timestamped revision before any method results are produced, and is not changed thereafter.
 
 ### 2.5 G1-MST
 
 **Architecture (about 30,000 parameters, fixed):**
 
-- One token per point value. Embedding = linear layer(`[y/35, censored]`) + Fourier features of the coordinates (x, y) (8 frequencies) through a linear layer + Fourier features of time (years) through a linear layer + visit age as a scalar through a linear layer. Dimension d = 32.
-- Each examination gets an additional "examination token" (a learnable initial vector plus time encoding) representing that examination's global shift.
-- 2 layers of factorised attention, each with:
-  - Spatial attention: the 59 point tokens plus 1 examination token within the same examination. Attention biases: +b (b learnable) for point pairs in the same hemifield at distance ≤ 6°, −∞ (not connected) for point pairs across the horizontal midline. The examination token is connected to all points.
-  - Temporal attention: the same point across examinations; examination tokens also attend to each other over time.
+- One token per point value. Embedding = linear layer(`[y/35, censored]`) + Fourier features of the coordinates (x, y) (8 frequencies) through a linear layer + Fourier features of time (years) through a linear layer + age at visit (scalar) through a linear layer. Dimension d = 32.
+- Each examination additionally has an "examination token" (a learnable initial vector plus time encoding), used to represent the global offset of that examination.
+- 2 layers of factorised attention, each layer:
+  - Spatial attention: among the 59 point tokens plus 1 examination token within the same examination. Attention bias: point pairs in the same hemifield at distance ≤ 6° receive +b (b learnable); point pairs across the horizontal midline receive −∞ (not connected). The examination token is connected to all points.
+  - Temporal attention: for the same point across different examinations; examination tokens also attend to each other temporally.
   - Feed-forward width 64, LayerNorm, dropout 0.1.
 - Output head: each point token outputs \( \mu \) and \( \log\sigma \).
 
 **Training objective:**
-- In each batch, one masking mode is chosen at random (equal probability) for each series: ① randomly mask 20% of point tokens; ② mask an entire examination (all 59 points); ③ mask all examinations of one point.
-- Masked tokens have their value and censoring flag set to zero and receive a "masked" flag.
-- The loss is computed on masked tokens only, using the censored Gaussian negative log-likelihood: uncensored \( -\log \mathcal N(y;\mu,\sigma) \); censored \( -\log \Phi\big((0-\mu)/\sigma\big) \).
-- Optimisation: AdamW, learning rate 1e-3, weight decay 1e-2, batch size 16 series, at most 400 epochs; early stopping on the masked-token negative log-likelihood in the validation folds of the 5-fold split within the development set (patience 30 epochs).
-- Training data: real data only (training folds of the development set). **The main model is not trained on simulated data.** A separate "real + `sim_train`" version (G1-MST-sim) is trained for sensitivity analysis SA7 only.
+- In each batch, one masking mode is chosen at random (equal probabilities) for each series: ① randomly mask 20% of the point tokens; ② mask an entire examination (all 59 points); ③ mask all examinations of the same point.
+- Masked tokens have their value and censoring flag set to zero, and a "masked" flag is added.
+- The loss is computed only on masked tokens, using the censored Gaussian negative log-likelihood: uncensored \( -\log \mathcal N(y;\mu,\sigma) \); censored \( -\log \Phi\big((0-\mu)/\sigma\big) \).
+- Optimisation: AdamW, learning rate 1e-3, weight decay 1e-2, batch size 16 series, at most 400 epochs; early stopping on the masked-token negative log-likelihood on the validation folds of a 5-fold split within the development set (patience 30 epochs).
+- Training data: real data only (training folds of the development set). **The main model is not trained on simulated data.** A separate "real + `sim_train`" version (G1-MST-sim) is trained, only for sensitivity analysis SA7.
 - 5 seeds: 20261019–20261023.
 
 **Inference (obtaining denoised values):**
-- For a (truncated) series, K = 20 inference passes are made, each randomly masking 20% of point tokens, with every token masked at least twice. The denoised value of each token = the mean of \( \mu \) over the passes in which it was masked. Thus no denoised value uses that point's own measurement at that examination (J-invariance principle, Batson & Royer 2019).
-- Forecasting: a fully masked examination is appended at the target time and \( \mu, \sigma \) are read out (used only for next-visit prediction in Section 1.4, not for H4).
+- For a (truncated) series, K = 20 inference passes are run, each randomly masking 20% of the point tokens, with every token masked at least 2 times. The denoised value of each token = the average of its \( \mu \) over the passes in which it was masked. Thus no denoised value uses that point's own measurement at that examination (the J-invariance principle, Batson & Royer 2019).
+- Forecasting: a fully masked examination is added at the target time and \( \mu, \sigma \) are read out (used only for the next-visit prediction in Section 1.4, not for H4).
 
-**Ablations** (in the first batch only MST-S; the others after the main results, all descriptive): removing temporal attention (MST-S), removing the examination token, removing the censored likelihood (MSE instead, −1 treated as 0), removing heteroscedastic σ, random point masking only, adding follow-up IOP, a 200,000-parameter version (d = 64, 3 layers).
+**Ablations** (only MST-S in the first batch; the others after the main results, all descriptive): remove temporal attention (MST-S), remove the examination token, remove the censored likelihood (use MSE, −1 treated as 0), remove heteroscedastic σ, random-point masking only, add follow-up IOP, a 200,000-parameter version (d = 64, 3 layers).
 
 ### 2.6 Calibration of slope standard errors
 
-Denoised values borrow information from each other, so standard errors computed directly with the OLS formula are too narrow. Procedure:
+Denoised values borrow information from each other, so standard errors computed directly with the OLS formula will be too narrow. Procedure:
 1. On `sim_train`, for each method and each level (pointwise, cluster, global), compute \( z = (\hat b - b_{true})/\widehat{SE} \) (\( b_{true} \) on the observed scale).
 2. Calibration factor \( c = \) the 95% quantile of \( |z| \) / 1.96.
-3. On `sim_test` and real data, use \( c \cdot \widehat{SE} \) as the calibrated standard error.
+3. On `sim_test` and on real data, \( c \cdot \widehat{SE} \) is used as the calibrated standard error.
 4. Both raw and calibrated coverage are reported.
 
-All methods are calibrated this way (including B1 and B4) to ensure a fair detection comparison.
+All methods are calibrated in this way (including B1 and B4), to ensure a fair detection comparison.
 
 ---
 
-## 3. Data, noise model, simulator, and evaluation procedures
+## 3. Data, noise model, simulator and evaluation workflow
 
 ### 3.1 Data encoding
 
 - Indices 21 and 32 of the 61 GRAPE values (physiological blind-spot placeholders) are removed, leaving 59 points.
 - All other −1 values are left-censored observations at 0 dB: `censored = True`, value recorded as 0 dB.
-- Locations, clusters, and the split were fixed before publication; see Section 6.
+- Locations, clusters and the split were fixed before publication; see Part 6.
 
-### 3.2 Population split rules
+### 3.2 Subject split rules
 
-- The noise model, simulator parameters, tuning of all methods, and `sim_train` use development-set subjects only.
-- `sim_test` uses hold-out subjects only as templates.
-- G1-MST and other methods requiring training that are used in the simulation evaluation are trained only on real development-set data.
+- The noise model, simulator parameters, tuning of all methods, and `sim_train` use only development-set subjects.
+- `sim_test` uses only held-out subjects as templates.
+- G1-MST and the other methods that require training, when used for simulation evaluation, are trained only on development-set real data.
 - Real-data endpoints (H4 and the real-data analyses of Section 1.4) use a 5-fold subject-level split of all 144 subjects (`all_folds`); in each fold every method is retrained on the other 4 folds.
 
 ### 3.3 Noise model (development set only)
 
-For each eye and each point, OLS gives fitted values \( \hat f \) and residuals \( r \); residuals are multiplied by \( \sqrt{n/(n-2)} \).
+For each eye and each point, OLS gives fitted values \( \hat f \) and residuals \( r \); the residuals are multiplied by \( \sqrt{n/(n-2)} \).
 
-1. **Examination-level global shift**: for each examination, \( \delta_v = \) the mean of the residuals of its 59 points; stratified by tertile of the eye's baseline MS (the three strata differ by more than 20%; see Section 6, item 4). For simulation, the deconvolved SD — after removing the contribution of the average pointwise noise — is used.
-2. **Point-specific noise**: \( e = r - \delta_v \). The SD is estimated in bins of fitted value (0–5, 5–10, 10–15, 15–20, 20–25, 25–30, ≥30 dB) and then smoothed with a smoothing spline SD(\( \hat f \)).
-3. **Spatial correlation**: pointwise noise is generated with an exponentially decaying spatial covariance within each hemifield, with the correlation length estimated from the data; no correlation across the horizontal midline. For noise generation the central point is assigned to the superior-hemifield block.
+1. **Examination-level global offset**: for each examination \( \delta_v = \) the mean of the residuals of its 59 points; stratified by tertile of the eye's baseline MS (the three strata differ by more than 20%; see Part 6, item 4). Simulation uses the deconvolved SD, after removing the average contribution of the pointwise noise.
+2. **Point-specific noise**: \( e = r - \delta_v \). The SD is estimated in bins of the fitted value (0–5, 5–10, 10–15, 15–20, 20–25, 25–30, ≥30 dB), and a smoothing spline is then fitted to SD(\( \hat f \)).
+3. **Spatial correlation**: within the same hemifield, pointwise noise is generated with an exponentially decaying spatial covariance, with the correlation length estimated from the data; no correlation across the horizontal midline. When generating noise, the central point is merged into the superior-hemifield block.
 4. **Censoring**: simulated values < 0 are recorded as 0 with `censored = True`.
 
 ### 3.4 Simulator
 
 Each simulated series = true trajectory + noise.
 
-**Template (Revision R1)**: for each template eye, the **intercept of a pointwise Tobit regression (left-censored at 0 dB)** is used as the latent baseline at the time of the first examination (t = 0); it may be below 0 dB and is restricted to −10–35 dB.
-- For each point of each template eye, \( y^* = a + b\,t + \varepsilon \) is fitted, with observations \( \max(y^*, 0) \) and −1 treated as \( y^* \le 0 \); \( \sigma \) is not estimated per point but fixed at \( \sqrt{SD_{point}(\hat f_{OLS})^2 + SD_{offset}^2} \) from the noise model (with the shift SD taken from the baseline-MS stratum); \( a, b \) are estimated by maximum likelihood. Without censoring at that point this equals OLS; if all examinations are censored the MLE diverges and the lower bound −10 dB is used.
-- Rationale: with OLS intercepts (floored at 0 dB) as templates, the noise model's self-check simulation gave a censoring fraction of 2.7% versus 3.99% in the real development set, outside ±1 percentage point; 32% of censored points are absolute scotomata censored at every examination of that eye, which OLS fits at about 0 dB, so only about half of them fall below 0 in simulation. A diagnostic simulation that only set such points to −10 dB raised the fraction to 3.4%, indicating that the 0 dB floor is the main cause.
+**Templates (revision R1)**: for each template eye, the **intercept of a pointwise Tobit regression (left-censored at 0 dB)** is taken as the latent baseline at the time of the first examination (t = 0); it may be below 0 dB and is restricted to −10–35 dB.
+- For each point of each template eye, fit \( y^* = a + b\,t + \varepsilon \), with observations \( \max(y^*, 0) \) and −1 treated as \( y^* \le 0 \); \( \sigma \) is not estimated per point but fixed at the noise-model value \( \sqrt{SD_{point}(\hat f_{OLS})^2 + SD_{offset}^2} \) (the offset SD taken from the three baseline-MS strata); \( a, b \) are estimated by maximum likelihood. For a point with no censoring this equals OLS; when all examinations are censored the MLE diverges and the lower bound −10 dB is used.
+- Rationale: with OLS intercepts (floored at 0 dB) as templates, the simulated censoring proportion in the noise-model self-check was 2.75%, versus 4.15% in the real development set, beyond ±1 percentage point; 35% of censored points are "censored at every examination of that eye" absolute scotomas, which OLS fits to about 0 dB and of which only about half fall below 0 in simulation. A diagnostic simulation setting only such points to −10 dB raised the proportion to 3.46%, indicating that the main cause is the 0 dB floor.
 
 **Schedule**: the primary evaluation requires "exactly 4 examinations":
-- If a template eye has ≥4 examinations, its first 4 time points are used; if it has fewer than 4, additional intervals are drawn with replacement from the empirical distribution of real consecutive intervals in the development set up to 4 examinations (`sim_test` also draws from the development-set interval distribution).
-- Versions with k = 3, 5, and 6 examinations are also generated (with intervals drawn in the same way) for the "number of examinations versus error" curves.
+- If the template eye has ≥4 examinations, its first 4 time points are used; if fewer than 4, intervals are drawn with replacement from the empirical distribution of real consecutive intervals in the development set until there are 4 (`sim_test` also draws from the development-set interval distribution).
+- Versions with k = 3, 5 and 6 examinations are also generated (intervals drawn in the same way), for the "number of examinations – error" curves.
 
 **True-slope scenarios (8):**
 
-| ID | Name | True trajectory | Positive/negative | "Favours B4"? |
+| ID | Name | True trajectory | Positive/negative | "Favourable to B4"? |
 |---|---|---|---|---|
-| S0 | Stable with age-related decline | All points −0.1 dB/year | Negative | Yes |
-| S1 | Cataract-like | All points drop by 1–2 dB once after a random examination, stable thereafter | Negative | No |
-| S2 | Focal progression within clusters | All points in 1–2 random clusters at −0.5 / −1 / −2 dB/year (three levels with equal probability), others as S0 | Positive | Yes |
-| S3 | Arcuate defect across clusters | An arc along the nerve-fibre course (spanning 2–3 clusters but covering only part of each cluster's points) at −1 / −2 dB/year | Positive | No |
-| S4 | Small paracentral scotoma | 3–5 adjacent points within the central 10° at −1.5 / −3 dB/year | Positive | No |
+| S0 | Stable plus age-related decline | All points −0.1 dB/year | Negative | Yes |
+| S1 | Cataract-like | All points drop by 1–2 dB at once after a random examination, stable thereafter | Negative | No |
+| S2 | Focal progression within clusters | All points in 1–2 random clusters −0.5 / −1 / −2 dB/year (three levels equally likely); the rest as S0 | Positive | Yes |
+| S3 | Cross-cluster arcuate defect | An arc along the nerve fibre course (spanning 2–3 clusters, but covering only part of the points in each cluster) −1 / −2 dB/year | Positive | No |
+| S4 | Small paracentral scotoma | 3–5 adjacent points within the central 10° −1.5 / −3 dB/year | Positive | No |
 | S5 | Diffuse progression | All points −0.3 / −0.6 dB/year | Positive | Yes |
-| S6 | Late acceleration | Same locations as S2, −0.3 dB/year in the first half and −1.5 dB/year in the second half (piecewise linear, knot at the temporal midpoint) | Positive | No |
+| S6 | Late acceleration | Same locations as S2, −0.3 in the first half and −1.5 dB/year in the second half (piecewise linear, knot at the time midpoint) | Positive | No |
 | S7 | Quadratic acceleration | Same locations as S3, trajectory \( -a t^2 \), with \( a \) such that the mean slope at the end of 4 examinations is −1 dB/year | Positive | No |
 
-**Supplementary scenario rules**:
-- "1–2", "3–5", and "2–3" in the table are integers drawn with equal probability; discrete levels such as "−1 / −2" are drawn with equal probability; the drop in S1 is drawn uniformly from [1, 2] dB.
-- S1: the drop occurs before the \(j\)-th examination, with \(j\) drawn with equal probability from \(\{2, \dots, k\}\); the slope is 0 both before and after the drop (the age-related decline of S0 is not added). Under Section 1.3 the observed-scale true slope of S1 is generally negative, but S1 is counted as **negative** in the detection endpoints (used to set the specificity threshold); its true value is used as usual in the slope-error endpoints.
-- In S2, S5, and S6, unaffected points are as in S0 (−0.1 dB/year).
-- The point sets of the S3 arc and the S4 scotoma are generated automatically by the simulator code from the coordinates and the 10-cluster definition. After the simulator code is finalised and before any simulated data are generated, the point-set generation rules and the code's SHA-256 are appended as a timestamped revision.
+**Supplementary rules for the scenarios**:
+- "1–2", "3–5" and "2–3" in the table are integers drawn with equal probability; discrete levels such as "−1 / −2" are equally likely; the drop size in S1 is drawn uniformly in [1, 2] dB.
+- S1: the drop occurs before the \(j\)-th examination, with \(j\) drawn with equal probability from \(\{2, \dots, k\}\); the slope is 0 both before and after the drop (the S0 age-related decline is not added). By Section 1.3, the observed-scale true slope of S1 is generally negative, but in the detection endpoints it is counted as **negative** (used to set the specificity threshold); the slope-error endpoints use its true value as usual.
+- In S2, S5 and S6, unaffected points are as in S0 (−0.1 dB/year).
+- The point sets of the S3 arc and the S4 scotoma are generated automatically by the simulator code from the coordinates and the 10-cluster definition. After the simulator code is finalised and before any simulated data are generated, the point-set generation rules and the code SHA-256 are appended as a timestamped revision.
 
 **Size and seeds**:
-- `sim_train`: each development-set template eye × 8 scenarios × 10 replicates, seed 20261019.
-- `sim_test`: each hold-out template eye × 8 scenarios × 20 replicates, seed 20261119.
+- `sim_train`: each development-set template eye × 8 scenarios × 10 repetitions, seed 20261019.
+- `sim_test`: each held-out template eye × 8 scenarios × 20 repetitions, seed 20261119.
 - Each series carries `scenario, template_eye, template_subject, truth_point, truth_cluster, truth_global (one set each on the observed and latent scales), is_progressing`.
 
-**Sealing of `sim_test`**: immediately after generation, the file's SHA-256 is appended to the preregistration as a timestamped revision; **before 2027-01-04 (the first day of week 12)** no script may read it (the `sim_test_seal` switch in `config.yaml`; evaluation scripts check the switch and the hash). Weeks are counted with the week containing 2026-10-19 (Monday) as week 1.
+**Sealing of `sim_test`**: immediately after generation, the file SHA-256 is appended to the preregistration as a timestamped revision; **before 2027-01-04 (the first day of week 12)** no script may read it (the `sim_test_seal` switch in `config.yaml`; evaluation scripts check the switch and the hash). Weeks are counted with the week containing 2026-10-19 (Monday) as week 1.
 
 ### 3.5 Simulator calibration and the week-5 checkpoint (development-set real data and `sim_train` only)
 
-| Statistic | Tolerance |
+| Statistic | Allowed deviation |
 |---|---|
 | MS residual SD | ±10% |
-| Examination-level global shift SD | ±10% |
-| Pointwise residual SD (per stratum of fitted value) | ±15% |
-| SD of observed MS slopes | ±15% |
-| Censoring fraction (target: 3.99% observed in the development set) | ±1 percentage point |
+| Examination global offset SD | ±10% |
+| Pointwise residual SD (stratified by fitted value, each stratum) | ±15% |
+| SD of observed MS slope | ±15% |
+| Censoring proportion (target: 4.15% observed in the development set) | ±1 percentage point |
 
-- **Mixing rule for the SD of observed MS slopes**: development-set eyes are classified by full-series OLS MS slope into three bins: ≥ −0.3 dB/year, −1.0 to −0.3 dB/year, < −1.0 dB/year; the proportions of eyes in the three bins are used as mixing weights for S0, S5, and S2, respectively; the S0, S5, and S2 series of `sim_train` are weighted accordingly, and the SD of observed MS slopes is computed and compared with the real development-set value.
-- If a tolerance is exceeded, noise-model and simulator parameters are adjusted, for at most 3 rounds; if still out of tolerance, the gap is reported in the paper. Tuning looks only at the statistics in the table above and does not run any competing method.
-- **Week-5 checkpoint** (2026-11-16 to 11-22): on `sim_train`, the cluster-level slope RMSE of B4 should be clearly lower than that of B1 (bootstrap over development-set subjects, interval excluding 0). If not, the simulator or the B4 implementation is fixed first, and the work does not proceed.
+- **Mixing rule for the observed MS slope SD**: each development-set eye is classified by its full-series OLS MS slope into three bands: ≥ −0.3 dB/year, −1.0 to −0.3 dB/year, < −1.0 dB/year; the proportions of eyes in the three bands are used as the mixing weights of S0, S5 and S2 respectively; the SD of the observed MS slope is computed from the S0, S5 and S2 series of `sim_train` weighted accordingly and compared with the real development-set value.
+- If the allowed deviation is exceeded, the noise model and simulator parameters are adjusted, for at most 3 rounds; if still out of tolerance after tuning, the gap is reported in the paper. Tuning looks only at the statistics in the table above and does not run any competing method.
+- **Week-5 checkpoint** (2026-11-16 to 11-22): on `sim_train`, the cluster-level slope RMSE of B4 should be clearly lower than that of B1 (bootstrap over development-set subjects, interval excluding 0). If not achieved, the simulator or the B4 implementation is fixed first before proceeding.
 
 ### 3.6 Detection on simulated data (H3)
 
-1. Decision statistic of each method: the minimum over clusters of the cluster-slope z values (with calibrated standard errors); PoPLR uses S.
-2. On the negative scenarios of `sim_train` (S0, S1), the threshold at which 95% of negative series are not called positive is determined separately for each method × seed × k.
-3. The thresholds are applied to `sim_test`: the actual specificity of negative scenarios and the sensitivity of positive scenarios are reported, stratified by scenario and rate.
-4. H3: the sensitivity difference at k = 4 for the focal progression scenarios (S2, S3, S4, S6, S7 combined, scenarios weighted equally) (G1-MST − B4; for G1-MST, the mean of the sensitivities of the 5 seeds). The 95% interval is obtained by resampling hold-out subjects with replacement 2000 times, with thresholds held fixed (not re-estimated) during resampling.
-5. Additionally reported: "number of examinations needed to reach 80% sensitivity" (curve over k from 3 to 6).
+1. Decision statistic of each method: the minimum over clusters of the z-values of the cluster slopes (using calibrated standard errors); PoPLR uses S.
+2. On the negative scenarios of `sim_train` (S0, S1), find the threshold at which 95% of negative series are not called positive, separately for each method × each seed × each k.
+3. Apply the thresholds to `sim_test`: report the actual specificity in the negative scenarios and the sensitivity in the positive scenarios, stratified by scenario and rate.
+4. H3: the difference in sensitivity (G1-MST − B4; G1-MST takes the mean sensitivity over its 5 seeds) at k = 4 in the focal progression scenarios (S2, S3, S4, S6, S7 pooled, each scenario equally weighted). The 95% interval is obtained by resampling held-out subjects with replacement 2000 times, with thresholds held fixed (not re-estimated) during resampling.
+5. Additionally reported: "number of examinations required to reach 80% sensitivity" (curve for k from 3 to 6).
 
 ### 3.7 Real-data anchor (H4)
 
-1. Subjects: eyes with at least 5 examinations (88 eyes); 5-fold subject-level split of all 144 subjects, with each fold using models trained on the other 4 folds.
-2. Each method calls `estimate()` on the first 4 examinations to obtain the intercept and slope of each cluster: methods in general fit OLS to the denoised cluster means of the 4 examinations; B4, EB, and EB-GK use their own cluster-level estimates. These are extrapolated to the times of the 5th and later examinations. G1-MST does not use its forecasting output but extrapolates cluster-level trends in the same way as other methods; for G1-MST the mean of the extrapolated values over the 5 seeds is used as the prediction.
-3. Observed cluster mean: the mean of the observed values (censored recorded as 0 dB) of the points of that cluster at that examination.
-4. MAE: for each eye, \( |\text{predicted} - \text{observed}| \) is first averaged over its 5th and later examinations × 10 clusters, and then averaged over eyes with equal weights.
-5. Interval: 95% interval of the MAE difference (G1-MST − B4) from 2000 resamples of subjects with replacement.
+1. Subjects: eyes with at least 5 examinations (88 eyes); 5-fold subject-level split of all 144 subjects, each fold using models trained on the other 4 folds.
+2. Each method calls `estimate()` on the first 4 examinations to obtain the intercept and slope of each cluster: general methods perform OLS on the denoised cluster means of the 4 examinations; B4, EB and EB-GK use their own cluster-level estimates. These are extrapolated to the times of the 5th and subsequent examinations. G1-MST does not use its forecast output but performs the same cluster-level trend extrapolation as the other methods; for G1-MST, the average of the extrapolated values over its 5 seeds is used as the prediction.
+3. Observed cluster mean: the average of the observed values (censored recorded as 0 dB) of the points of that cluster at that examination.
+4. MAE: for each eye, first average \( |\text{predicted} - \text{observed}| \) over its 5th and subsequent examinations × 10 clusters, then average over eyes with equal weights.
+5. Interval: resample subjects with replacement 2000 times to obtain the 95% interval of the MAE difference (G1-MST − B4).
 
-### 3.8 Detection on real data (descriptive only)
+### 3.8 Real-data detection (descriptive only)
 
-1. For eyes with at least 5 examinations, the visit time labels of each eye are shuffled 200 times (time points unchanged, only the order of the values is permuted), and the decision statistic of each method is computed.
+1. For eyes with at least 5 examinations, the visit time labels of each eye are shuffled 200 times (time points unchanged, only the order of values permuted), and each method's decision statistic is computed.
 2. Threshold: the positive rate on shuffled series equals 5%.
-3. On the true order, decisions are made sequentially from the 3rd examination onward, recording the examination number and years at first detection; Kaplan–Meier curves are drawn, with a subject-clustered log-rank test.
-4. Limitation: shuffling removes age-related decline and cannot separate declines caused by cataract from those caused by treatment.
+3. On the real order, decisions are made at each examination starting from the 3rd, recording the examination number and years at first detection; Kaplan–Meier curves are drawn, with a subject-clustered log-rank test.
+4. Limitation: shuffling erases the age-related decline and cannot separate declines caused by cataract from those caused by treatment.
 
 ---
 
-## 4. Sensitivity analyses and the narrative decision point
+## 4. Sensitivity analyses and narrative decision point
 
-### 4.1 Sensitivity analyses (all descriptive; they do not change the H1–H4 decisions)
+### 4.1 Sensitivity analyses (all descriptive; they do not change the decisions on H1–H4)
 
 | ID | Change |
 |---|---|
 | SA1 | −1 treated as missing (v1 encoding), to assess the effect of censoring handling |
-| SA2 | Excluding angle-closure eyes |
-| SA3 | Generating `sim_test` only from template eyes with ≥4 examinations |
-| SA4 | Excluding eyes whose follow-up IOP fell by more than 30% from baseline (no medication records are available; this serves as a proxy for treatment intensification) |
+| SA2 | Exclude angle-closure eyes |
+| SA3 | Generate `sim_test` only from template eyes with ≥4 examinations |
+| SA4 | Exclude eyes whose IOP during follow-up fell by more than 30% from baseline (the data have no medication records; this serves as a proxy for treatment intensification) |
 | SA5 | Detection specificity changed to 90% and 97.5% |
-| SA6 | 200,000-parameter version of G1-MST; masking fractions of 10% and 30% |
+| SA6 | G1-MST 200,000-parameter version; masking proportions 10% and 30% |
 | SA7 | G1-MST-sim (trained with added simulated data) |
-| SA8 | Simulated noise without the examination-level global shift (pointwise noise only), to see whether conclusions depend on this component |
-| SA9 | If Octopus age norms are available, H1 repeated with TD values |
-| SA10 | Simulated pointwise noise made spatially independent, to see whether conclusions depend on spatially correlated noise |
+| SA8 | Simulated noise without the examination global offset (pointwise noise only), to see whether the conclusions depend on this component |
+| SA9 | If Octopus age norms are available, redo H1 with TD values |
+| SA10 | Simulated pointwise noise made spatially independent, to see whether the conclusions depend on spatially correlated noise |
 
 ### 4.2 Week-11 narrative decision point (2026-12-28 to 2027-01-03)
 
 Using only `sim_train` and the development set: the difference in cluster-level slope RMSE between G1-MST and B4, with a paired bootstrap over development-set subjects (same algorithm as H1).
 
-- Upper limit of the interval < 0: the abstract and title emphasise "a spatiotemporal denoising model outperforms a strong statistical model for cluster-level slopes".
-- Interval containing 0 or B4 better: the title and abstract are framed as a "benchmark", emphasising "with small samples, strong statistical models are sufficient; global shifts dominate global noise".
+- Upper limit of the interval < 0: the abstract and title emphasise "a spatiotemporal denoising model outperforms a strong statistical model on cluster-level slopes".
+- Interval contains 0 or B4 is better: the title and abstract are written as a "benchmark", emphasising "with small samples a strong statistical model is sufficient; the global offset dominates global noise".
 
-**In either case, no endpoint, testing order, or decision rule of Section 1 is changed**; only the narrative emphasis of the paper is decided. The decision and its date are recorded in the log.
+**In either case, none of the endpoints, the testing order or the decision rules of Part 1 are changed**; only the narrative emphasis of the paper is decided. The decision and its date are recorded in the log.
 
 ---
 
-## 5. Pre-specified hyperparameters (`config.yaml` should be identical to this block verbatim)
+## 5. Hyperparameters fixed in advance (`config.yaml` must match this verbatim)
 
-> The block below is reproduced verbatim from `config.yaml`; comments and some string values are in Chinese. Scenario names: S0 stable with age-related decline; S1 cataract-like; S2 focal progression within clusters; S3 arcuate defect across clusters; S4 small paracentral scotoma; S5 diffuse progression; S6 late acceleration; S7 quadratic acceleration.
+> Note (translation): the YAML block below is reproduced verbatim from the Chinese preregistration, including its Chinese comments, and is identical in content to `config.yaml`. It is deliberately not translated, so that it remains the single authoritative configuration.
 
 ```yaml
 # 方向 A：GRAPE 视野去噪方法基准 —— 全局配置（预先定死，预注册内容的一部分）
@@ -323,7 +322,7 @@ Using only `sim_train` and the development set: the difference in cluster-level 
 project: GRAPE_directionA_VF_denoising_benchmark
 plan_version: "最终版 2026-10-20"
 created: "2026-10-20"
-revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照"]
+revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355"]
 
 paths:
   raw_xlsx: "../VF and clinical information.xlsx"   # 相对 directionA/；原始数据不复制进 data/
@@ -373,7 +372,7 @@ noise_model:
   offset_constant_if_rel_diff_below: 0.20
   fitted_bins_db: [0, 5, 10, 15, 20, 25, 30, .inf]
   spatial_corr_threshold: 0.10   # ≥ 0.10 逐点噪声用指数衰减空间协方差；否则独立
-  target_censor_frac: 0.0399     # 开发集实测删失比例（校准只用开发集）
+  target_censor_frac: 0.0415     # 开发集实测删失比例（校准只用开发集）
 
 simulator:
   template_baseline_method: tobit_left_censored_0db   # 修订 R1
@@ -484,18 +483,18 @@ evaluation:
 
 ---
 
-## 6. Data decisions fixed before publication (data structure only; no competing method has been run)
+## 6. Data decisions fixed before publication (using data structure only; no competing method run)
 
-1. **Population split** (`data/split.json`, seed 20261019): development set 101 subjects / 182 eyes, hold-out set 43 subjects / 81 eyes; strata = subject baseline MS tertile × whether the subject has an eye with ≥5 examinations. Baseline MS distribution KS p = 0.92; examinations per eye Mann–Whitney p = 0.96.
-2. **G1 location mapping** (`data/g1_locations.csv`): coordinates from `locmaps$g1` of the R package visualFields 1.0.7; the 61 GRAPE values are arranged in a centre-outward spiral according to Figure 2b of the original paper, verified point by point against the first examination of the right eye of subject 8 (59/59), with independent verification against the left-eye example of Figure 2c (58/59). The blind-spot placeholders take the centroid of the grey ellipse in Figure 2b (15.0°, −1.4°). All three validation checks passed.
-3. **B4 spatial term**: after removing the examination-level global shift, the mean residual correlation of neighbouring points in the same hemifield at ≤6° = **0.507** (other pairs −0.035), > 0.10 → **B4 includes a spatial term**. The implementation is fixed in week 3 according to the rules of Section 2.4.
+1. **Subject split** (`data/split.json`, seed 20261019): development set 101 subjects / 185 eyes, held-out set 43 subjects / 78 eyes; stratification = subject's baseline MS tertile × whether the subject has an eye with ≥5 examinations. Baseline MS distribution KS p = 0.89 (subject level); Mann–Whitney p for examinations per eye = 0.82.
+2. **G1 location mapping** (`data/g1_locations.csv`): coordinates from `locmaps$g1` of the R package visualFields 1.0.7; the 61 GRAPE values are arranged in an outward spiral from the centre as in Figure 2b of the original paper, checked point by point against the first examination of the right eye of subject 8 (59/59), and independently checked against the left-eye example of Figure 2c (58/59). The blind-spot placeholders take the centre of the grey ellipse in Figure 2b, (15.1°, −1.3°) (pixels were linearly calibrated to degrees using the 15 complete black squares in the figure, and the centre of the bounding box of the grey pixels was taken). All three validations passed.
+3. **B4 spatial term**: after removing the examination global offset, the mean residual correlation between neighbouring points in the same hemifield within ≤6° = **0.507** (other point pairs −0.035). Computation: all 263 eyes and 1115 examinations; per-eye, per-point OLS residuals multiplied by \( \sqrt{n/(n-2)} \), with the mean of the 59 points subtracted at each examination; for each pair of locations the Pearson correlation is computed across the 1115 examinations and then averaged within groups; "neighbouring" = distance ≤ 6° and not crossing the horizontal midline (\( y_i y_j \ge 0 \)), with the central point (0,0) counted as neighbouring points within ≤ 6° on both sides (58 pairs in total; 1653 other pairs). 0.507 > 0.10 → **B4 includes a spatial term**. The implementation is fixed in week 3 according to the rules of Section 2.4.
 4. **Noise model** (`data/noise_model.json`, development set only):
-   - The examination-level global shift SD in the three baseline-MS strata is 1.91 / 1.26 / 1.14 dB (relative difference 68% ≥ 20%) → **stratified**; simulation uses the deconvolved shift SDs 1.53 / 0.91 / 0.89 dB. Self-check: simulating with these and re-estimating with the same algorithm gives a global shift SD of 1.42 (real development set 1.47).
-   - Pointwise noise: smoothing-spline SD as a function of fitted sensitivity; exponentially decaying spatial correlation within hemifields (a = 1.00, λ = 8.2°), no correlation across the horizontal midline.
-   - This file was generated under the pre-R1 template convention (floor 0 dB); R1 takes only the σ-related parameters from it, and the censoring fraction is re-checked with the Tobit template during the calibration of Section 3.5.
-5. **Cluster definition**: the 10 clusters of the Octopus EyeSuite G program (Bürki & Monhart, European Ophthalmic Review 2007, Figure 1b) are adopted; the central point (0,0) belongs to no cluster. Cluster numbering is defined by this study:
+   - The examination global offset SD in the three baseline-MS strata is 1.86 / 1.32 / 1.27 dB (relative difference 47% ≥ 20%) → **stratified**; simulation uses the deconvolved offset SDs 1.62 / 1.11 / 1.14 dB. Self-check: simulating with it and re-estimating with the same algorithm gives a global offset SD of 1.45 (real development set 1.50).
+   - Pointwise noise: smoothing-spline SD as a function of fitted sensitivity; exponentially decaying spatial correlation within a hemifield (a = 1.00, λ = 5.7°; fitted by least squares of the pairwise correlation \( \rho(d) = a\,e^{-d/\lambda} \), with a restricted to [0, 1], over all strictly same-hemifield point pairs (excluding the central point) of the development-set point-specific residuals e after removing the global offset), no correlation across the horizontal midline.
+   - This file was generated under the template definition preceding revision R1 (floor at 0 dB); R1 takes only the σ-related parameters from it, and the censoring proportion is re-checked with Tobit templates during the calibration of Section 3.5.
+5. **Cluster definition**: the 10 clusters of the Octopus EyeSuite G program (Bürki & Monhart, European Ophthalmic Review 2007, Figure 1b) are adopted; the central point (0,0) does not belong to any cluster. Cluster numbering is defined by this study:
 
-| Cluster | Name | Points | Points included (x°, y°), right-eye visual field coordinates, +x temporal |
+| Cluster | Name | No. of points | Points included (x°, y°), right-eye visual field coordinates, +x temporal |
 |---|---|---:|---|
 | 1 | S_central | 4 | (-2,2), (2,2), (4,4), (8,2) |
 | 2 | S_paracentral_nasal | 7 | (-4,4), (-8,2), (-2,8), (2,8), (-14,4), (-20,4), (-26,4) |
@@ -512,20 +511,20 @@ evaluation:
 
 | File | SHA-256 |
 |---|---|
-| `data/split.json` | `5087d7813cfd43399b61a7f76ade8684c63c44da3128b66155665845ccb467a9` |
-| `data/g1_locations.csv` | `6bda6f9e3f7cab9a5254701bf7cc482c0d941b1cd25478a02e3d1a6d9bf788af` |
-| `data/noise_model.json` | `d0e0383d92843a6ebafe11df591c58a7893193e779006377dc48b52810367270` |
+| `data/split.json` | `5e960c3ede4b8334017f0b6981a01b8d6e87a013a89026d927d0f6d1b2361467` |
+| `data/g1_locations.csv` | `73d64f945f8645eb3c98b7db54cdf9111a014e37d175871ac55be348d6cd03ea` |
+| `data/noise_model.json` | `fcd6b649bbf3eceb5c5fc6d22f580e24883a466134c4fa18669f8c273c0b56a6` |
 
 ---
 
-## 7. Revision history
+## 7. Revision log
 
 | ID | Date (Asia/Shanghai) | Content | Decided by | Before any model results? |
 |---|---|---|---|---|
-| — | 2026-10-20 approx. 12:11 | Initial draft | Drafted by the execution agent | Yes |
-| R1 | 2026-10-20 12:39 | Simulation template baseline changed to the pointwise Tobit (left-censored at 0 dB) intercept, allowing < 0 dB, range −10–35 dB; calibration still applies | Investigator | Yes (no simulated data generated yet) |
-| R2 | 2026-10-20 12:39 | Descriptive comparator EB-GK added; not part of the H1–H4 fixed-sequence tests | Investigator | Yes (no method run yet) |
-| S1 | 2026-10-20 13:11 | The `grape_pilot` directory was sealed as a whole into a deterministic tar.gz (packing started 13:10:34; 29,844 files including `.venv`), SHA-256 `8f37381cbbf3e9b64601a61c684f0ac7a536cbd8a5510cfb01be2afb9c60feb0`, with a per-file SHA-256 list `grape_pilot_manifest.sha256`; during sealing only file names and sizes were listed and no numbers in it were viewed. Note: the latest file modification time in the directory is 13:09, later than the 12:35 stated in Section 0.1, item 4 | Requested by the investigator, executed by the execution agent | Not applicable (sealing only; no new results produced) |
-| S2 | 2026-10-20 15:47 | `grape_pilot` resealed. The 13:11 seal (S1, `8f37381cbbf3e9b64601a61c684f0ac7a536cbd8a5510cfb01be2afb9c60feb0`) is superseded because the directory was written to after it; the old archive and manifest are kept, renamed `*_v1_1311`. New deterministic tar.gz packed 15:46:05–15:46:57: 29,857 files including `.venv` and `paper/`, SHA-256 `a8873d3e9335bcede283d3d879ef34a189edc7208dcc45dfee5b4ffaaa0cb24f`. Re-packing reproduced the hash, and the per-file manifest check after extraction passed. Again, only file names and sizes were listed and no numbers were viewed. Checked before sealing: no running processes in the directory and no writes after 15:34:45. Timeline confirmed by view1, the agent that ran the pilot (Beijing time, 2026-10-20): started approx. 11:50; interrupted and resumed approx. 12:47–12:53; computation ended 13:33 (last computational output `out/e_summary.txt` 13:31, `phase2_report.md` 13:33); afterwards only two summary documents were written (15:25 `总结_符合与偏离预期.md` and 15:34 `view1_试跑总报告.md`); last write 15:34:45. Copies outside the directory (six `/workspace/view1数据*.zip` files and `/workspace/out/方向A_动笔前修改清单.md`) are recorded by SHA-256, unopened, in `sealed/external_copies.sha256` (SHA-256 of that file: `c8395d351d31fce2c6cc00621e0bd8d9e143339f069d8f0c58505a6cc32db69a`) | Approved by the investigator, executed by the execution agent | Not applicable (sealing only; no new results produced) |
-| S3 | 2026-10-20 16:05 | At the investigator's request, Section 0.1, item 4 was rewritten using known metadata only (file names, modification times, hashes, and view1's own account of the timeline), without opening any file in the pilot directory or its external copies. Added: the actual timing and scope of the pilot; the v2 delivery time of 13:05:22 (attachment modification time); the existence of pilot output files from 11:51 onward; and the execution agent's single opening of `pilot_report.md` | Investigator | Not applicable (disclosure only; no new results produced) |
-Any change after publication is appended as a new row (with date, content, and rationale) and reported item by item in the paper. Announced forthcoming revisions: implementation of the B4 spatial term (week 3); point-set generation rules for S3/S4 and the simulator code hash (before generating simulated data); the SHA-256 of `sim_test` (immediately after generation).
+| — | 2026-10-20 approx. 12:11 | Initial draft | Drafted by the executing agent | Yes |
+| R1 | 2026-10-20 12:39 | Simulation template baseline switched to the pointwise Tobit (left-censored at 0 dB) intercept, allowing < 0 dB, range −10–35 dB; calibration carried out as usual | User | Yes (no simulated data had yet been generated) |
+| R2 | 2026-10-20 12:39 | Added the descriptive comparator EB-GK, not entering the fixed-sequence tests H1–H4 | User | Yes (no method had yet been run) |
+| R3 | 2026-10-20 approx. 16:35 | Data-step files (split, locations, noise model) regenerated before publication; the numbers and hashes in Part 6 and the censoring target updated accordingly | User | Yes |
+| R4 | 2026-10-20 | At 16:39 (UTC+8) on 2026-10-20, an earlier, superseded draft of this preregistration (commit 3129355) was pushed directly to the main branch of this repository and was briefly public. That draft is not this preregistration; its numbers, hashes and code do not apply. This commit replaces the draft in full with the present version; the draft remains in the git history for inspection. This revision does not change any test, endpoint, data, or the numbers and hashes in section 6. | User | Yes |
+
+Any change after publication is appended as a new row (with date, content and rationale) and reported item by item in the paper. Announced forthcoming revisions: implementation of the B4 spatial term (week 3), the S3/S4 point-set generation rules and simulator code hash (before generating simulated data), and the SHA-256 of `sim_test` (immediately after generation).
