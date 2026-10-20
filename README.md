@@ -6,3 +6,4 @@
 - Rebuild pre-publication data steps: place `VF and clinical information.xlsx` one level above this folder, extract GRAPE Fig. 2 to `figures/GRAPE_fig2_source.png`, then run `./run_prepublication.sh` (Python venv at `../.venv`; R with visualFields). 重建步骤同左。
 - SHA-256 of the non-public files (`split.json`, `noise_model.json`) are listed in Part 6. 未公开文件的哈希见第 6 部分。
 - `.gitattributes` (`* -text`) prevents line-ending conversion; `preregistration.md` and `config.yaml` use CRLF. 行尾为 CRLF，请勿转换。
+- Simulator (revision R5, section 7.1): `src/sim_core.py`, `src/04_simulator.py`, `src/05_calibrate_sim.py`, `src/test_simulator_toy.py` (toy test, no GRAPE data), and `results/sim_pointsets.json` (S3/S4 candidate point sets from public coordinates only); their SHA-256 are listed in 7.1 and checked by `04_simulator.py` before any generation. 模拟器源码与点集文件（修订 R5，第 7.1 节列出哈希，生成前由脚本核对）。
