@@ -1,0 +1,162 @@
+# 方向 A：GRAPE 视野去噪方法基准 —— 全局配置（预先定死，预注册内容的一部分）
+# 依据：方向A_研究计划_最终版.md（2026-10-20）。修改任何超参数都必须在预注册里带时间戳记录。
+project: GRAPE_directionA_VF_denoising_benchmark
+plan_version: "最终版 2026-10-20"
+created: "2026-10-20"
+revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照"]
+
+paths:
+  raw_xlsx: "../VF and clinical information.xlsx"   # 相对 directionA/；原始数据不复制进 data/
+  data: data
+  results: results
+  figures: figures
+  logs: logs
+
+seed: 20261019               # 全局种子；所有随机步骤从这里读并写进日志
+model_seeds: [20261019, 20261020, 20261021, 20261022, 20261023]
+week1_start: "2026-10-19"    # 第 1 周从这一天（周一）算起
+
+data:
+  n_vf_values_raw: 61
+  blind_spot_idx: [21, 32]   # 删除这两个占位格后剩 59 点
+  censor_code: -1            # 除盲点外 −1 = 0 dB 处左删失
+  censor_value_db: 0.0
+  expected:
+    n_eyes: 263
+    n_subjects: 144
+    n_visits: 1115
+    n_point_values: 65785
+    n_censored: 2734
+
+locations:
+  file: data/g1_locations.csv
+  coord_source: "R 包 visualFields 1.0.7 locmaps$g1（Octopus G1，右眼视野坐标，颞侧为 +x）"
+  order_source: "GRAPE 原文图 2b（从中心向外螺旋），用 8 号右眼第 1 次检查逐点核对"
+  cluster_source: "Octopus EyeSuite G 程序 10 簇（Bürki & Monhart 2007, Eur Ophthalmic Rev, 图 1b）"
+  center_point_cluster: none # 中心点 (0,0) 不属于任何簇；簇级终点不含它，全局终点含它
+  neighbor_max_dist_deg: 6.0 # “相邻点”= 同一半视野、距离 ≤ 6°
+  neighbor_resid_corr: 0.5067
+  other_resid_corr: -0.0353
+  neighbor_resid_corr_threshold: 0.10
+
+split:
+  unit: subject
+  dev_frac: 0.70
+  holdout_frac: 0.30
+  strata: ["baseline_ms_tertile", "has_eye_ge5_visits"]
+  dev_n_folds: 5
+  all_n_folds: 5
+
+noise_model:
+  dof_correction: "sqrt(n/(n-2))"
+  offset_strata: baseline_ms_tertile
+  offset_constant_if_rel_diff_below: 0.20
+  fitted_bins_db: [0, 5, 10, 15, 20, 25, 30, .inf]
+  spatial_corr_threshold: 0.10   # ≥ 0.10 逐点噪声用指数衰减空间协方差；否则独立
+  target_censor_frac: 0.0399     # 开发集实测删失比例（校准只用开发集）
+
+simulator:
+  template_baseline_method: tobit_left_censored_0db   # 修订 R1
+  template_baseline_tobit:
+    censor_point_db: 0.0
+    sigma: "fixed = sqrt(SD_point(f_ols)^2 + SD_offset(tertile)^2)，取自 data/noise_model.json，不逐点估计"
+    all_censored_rule: "该眼该点全部检查都删失时 MLE 发散，截距取下界 −10 dB"
+    no_censored_rule: "该眼该点无删失时 Tobit 等于 OLS"
+    baseline_time: first_visit   # 截距取第 1 次检查时刻 t=0
+  template_baseline_clip_db: [-10, 35]
+  interval_padding: dev_empirical_intervals_with_replacement   # sim_train 与 sim_test 都从开发集间隔补抽
+  primary_k: 4
+  k_versions: [3, 4, 5, 6]
+  n_rep_sim_train: 10
+  n_rep_sim_test: 20
+  seed_sim_train: 20261019
+  seed_sim_test: 20261119       # 与 sim_train 分开
+  truth_scale_primary: observed_floor_0db   # max(f(t),0) 的 OLS 斜率
+  truth_scale_secondary: latent             # f(t) 的 OLS 斜率，只作描述
+  scenarios:
+    S0: {name: 稳定加年龄下降, slope_all: -0.1, positive: false}
+    S1: {name: 白内障样, step_drop_db_uniform: [1, 2], step_before_visit: "uniform{2..k}", slope_other: 0.0, positive: false}
+    S2: {name: 簇内局灶进展, n_clusters: [1, 2], slopes: [-0.5, -1.0, -2.0], positive: true}
+    S3: {name: 跨簇弓形缺损, n_clusters_spanned: [2, 3], slopes: [-1.0, -2.0], positive: true}
+    S4: {name: 旁中心小暗点, max_ecc_deg: 10, n_points: [3, 4, 5], slopes: [-1.5, -3.0], positive: true}
+    S5: {name: 弥漫进展, slopes: [-0.3, -0.6], positive: true}
+    S6: {name: 后期加快, slope_early: -0.3, slope_late: -1.5, knot: time_midpoint, positive: true}
+    S7: {name: 二次型加速, mean_slope_at_k4: -1.0, positive: true}
+
+sim_calibration_tolerance:
+  ms_resid_sd_rel: 0.10
+  offset_sd_rel: 0.10
+  point_resid_sd_rel_per_bin: 0.15
+  ms_slope_sd_rel: 0.15
+  ms_slope_mix_bins_db_per_yr: [-1.0, -0.3]   # < −1.0 → S2；−1.0 到 −0.3 → S5；≥ −0.3 → S0
+  censor_frac_abs: 0.01
+  max_tuning_rounds: 3
+
+sim_test_seal:
+  sealed: true                 # 解封日前任何脚本都不许读 sim_test；评估脚本必须检查此开关
+  unseal_not_before_date: "2027-01-04"   # 第 12 周第一天
+  sha256: null                 # 由 04_simulator.py 生成后写入，并追加为预注册修订
+
+methods:
+  B1_min_visits: 3
+  EB: {sensitivity_strata: 3, prior_var: "max(0, var(b) - mean(s^2))", shrink_target: eye_cluster_mean}
+  EB_GK:                       # 修订 R2：仅作描述性对照
+    slope: per_point_ols_full_series
+    shrink_target: training_eye_population_mean_slope_at_location
+    prior_var: "per location: tau_p^2 = max(0, var_train(b_p) - mean_train(s_p^2))"
+    weight: "w = tau_p^2 / (tau_p^2 + s^2)"
+    fit_on: training_eyes_only
+    role: descriptive_only
+    in_fixed_sequence_tests: false
+    reference: "Gwak & Kang, MICCAI 2026 OMIA (OMIA_015)"
+  B4:
+    random_effects: [eye_intercept, eye_slope, eye_cluster_intercept, eye_cluster_slope, visit_intercept]
+    spatial_term: true
+    spatial_impl_preferred: spaMM_matern_within_hemifield
+    spatial_impl_fallback: car_neighbor_graph_le6deg
+    fallback_if_est_hours_over: 24
+    nonconvergence_steps: [diagonal_re_cov, car_neighbor_graph_le6deg]
+  B5: {self_weight: 0.5, neighbor_weight_total: 0.5}
+  PoPLR: {n_perm: 1000, one_sided: negative_slopes}
+  on_estimation_failure: substitute_B1_and_report_rate
+
+g1mst:
+  d_model: 32
+  n_layers: 2
+  ff_width: 64
+  dropout: 0.1
+  fourier_freqs: 8
+  approx_params: 30000
+  neighbor_bias: learnable     # 同半视野且 ≤6° 的点对加 +b；跨水平中线 −inf
+  mask_modes: [random_20pct_tokens, whole_visit, whole_location]
+  mask_frac: 0.20
+  loss: censored_gaussian_nll
+  optimizer: AdamW
+  lr: 1.0e-3
+  weight_decay: 1.0e-2
+  batch_size: 16
+  max_epochs: 400
+  early_stop_patience: 30
+  train_data: real_dev_only    # 主模型不用模拟数据；G1-MST-sim 只作 SA7
+  inference_K: 20
+  inference_min_masked_per_token: 2
+  seed_aggregation: mean_of_per_seed_metrics   # H1/H2/H3：先按种子算指标再平均；H4：外推值按种子平均
+  large_version: {d_model: 64, n_layers: 3, approx_params: 200000}
+
+se_calibration:
+  method: "c = quantile(|z|, 0.95) / 1.96，在 sim_train 上按方法×层级估计，真值用观察尺度"
+
+evaluation:
+  primary_endpoint: "sim_test, k=4, 簇级斜率 RMSE（10 簇等权、8 情景等权），G1-MST − B4"
+  test_order: [H1, H3, H4, H2]   # 固定顺序检验
+  success_definition: "95% 区间完全落在 G1-MST 更好的一侧"
+  n_bootstrap: 2000
+  bootstrap_unit: subject
+  ci_level: 0.95
+  detection_specificity: 0.95
+  detection_threshold_from: sim_train_S0_S1
+  real_detection_n_shuffles: 200
+  real_detection_fpr: 0.05
+  h4_min_visits: 5
+  h4_history_visits: 4
+  h4_mae_weighting: eye_equal
