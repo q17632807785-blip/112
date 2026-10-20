@@ -322,7 +322,7 @@ Using only `sim_train` and the development set: the difference in cluster-level 
 project: GRAPE_directionA_VF_denoising_benchmark
 plan_version: "最终版 2026-10-20"
 created: "2026-10-20"
-revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分"]
+revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355"]
 
 paths:
   raw_xlsx: "../VF and clinical information.xlsx"   # 相对 directionA/；原始数据不复制进 data/
@@ -525,5 +525,6 @@ evaluation:
 | R1 | 2026-10-20 12:39 | Simulation template baseline switched to the pointwise Tobit (left-censored at 0 dB) intercept, allowing < 0 dB, range −10–35 dB; calibration carried out as usual | User | Yes (no simulated data had yet been generated) |
 | R2 | 2026-10-20 12:39 | Added the descriptive comparator EB-GK, not entering the fixed-sequence tests H1–H4 | User | Yes (no method had yet been run) |
 | R3 | 2026-10-20 approx. 16:35 | Data-step files (split, locations, noise model) regenerated before publication; the numbers and hashes in Part 6 and the censoring target updated accordingly | User | Yes |
+| R4 | 2026-10-20 | At 16:39 (UTC+8) on 2026-10-20, an earlier, superseded draft of this preregistration (commit 3129355) was pushed directly to the main branch of this repository and was briefly public. That draft is not this preregistration; its numbers, hashes and code do not apply. This commit replaces the draft in full with the present version; the draft remains in the git history for inspection. This revision does not change any test, endpoint, data, or the numbers and hashes in section 6. | User | Yes |
 
 Any change after publication is appended as a new row (with date, content and rationale) and reported item by item in the paper. Announced forthcoming revisions: implementation of the B4 spatial term (week 3), the S3/S4 point-set generation rules and simulator code hash (before generating simulated data), and the SHA-256 of `sim_test` (immediately after generation).
