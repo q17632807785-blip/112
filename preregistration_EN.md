@@ -2,7 +2,7 @@
 
 > **English translation.** This is a full translation of `preregistration.md` (Simplified Chinese). In case of any discrepancy, the Chinese version is authoritative. Numbers, mathematical expressions and tables are reproduced verbatim; the YAML block in Part 5 is reproduced verbatim (including its Chinese comments) and is byte-for-byte identical in content to `config.yaml`.
 
-> **Status: draft v2, unpublished.** To be published by the user in the public GitHub repository https://github.com/q17632807785-blip/112: after this file is committed, a tag and a release are created, and the release is archived on Zenodo to obtain a DOI (GitHub commit times can be rewritten; the Zenodo archive provides an immutable timestamp). The repository does not contain the raw GRAPE data or per-person derived data (`data/*.parquet`, `split.json`); it contains only this file, `config.yaml`, `g1_locations.csv` and the code; Part 6 gives the SHA-256 of the files that are not made public.
+> **Status: v2 published on 2026-10-20 (GitHub tag `v2.0-prereg`, Zenodo DOI 10.5281/zenodo.23494626); later revisions R5 and R6 are listed in section 7.** To be published by the user in the public GitHub repository https://github.com/q17632807785-blip/112: after this file is committed, a tag and a release are created, and the release is archived on Zenodo to obtain a DOI (GitHub commit times can be rewritten; the Zenodo archive provides an immutable timestamp). The repository does not contain the raw GRAPE data or per-person derived data (`data/*.parquet`, `split.json`); it contains only this file, `config.yaml`, `g1_locations.csv` and the code; Part 6 gives the SHA-256 of the files that are not made public.
 > Date generated: 2026-10-20 (Asia/Shanghai). Basis: `方向A_研究计划_最终版.md` (Direction A research plan, final version; hereafter "the plan") and the 2026-10-20 revisions R1 and R2.
 > This file supersedes `preregistration_draft.md`. Before publication, `config.yaml` must be synchronised verbatim with Part 5.
 
@@ -322,7 +322,7 @@ Using only `sim_train` and the development set: the difference in cluster-level 
 project: GRAPE_directionA_VF_denoising_benchmark
 plan_version: "最终版 2026-10-20"
 created: "2026-10-20"
-revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355"]
+revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355", "R5 2026-10-20 S3/S4 点集生成规则、模拟器未定细则与模拟器代码 SHA-256（生成任何模拟数据之前）", "R6 2026-10-20 更正文首状态行：v2 已发布（DOI 10.5281/zenodo.23494626）"]
 
 paths:
   raw_xlsx: "../VF and clinical information.xlsx"   # 相对 directionA/；原始数据不复制进 data/
@@ -526,5 +526,89 @@ evaluation:
 | R2 | 2026-10-20 12:39 | Added the descriptive comparator EB-GK, not entering the fixed-sequence tests H1–H4 | User | Yes (no method had yet been run) |
 | R3 | 2026-10-20 approx. 16:35 | Data-step files (split, locations, noise model) regenerated before publication; the numbers and hashes in Part 6 and the censoring target updated accordingly | User | Yes |
 | R4 | 2026-10-20 | At 16:39 (UTC+8) on 2026-10-20, an earlier, superseded draft of this preregistration (commit 3129355) was pushed directly to the main branch of this repository and was briefly public. That draft is not this preregistration; its numbers, hashes and code do not apply. This commit replaces the draft in full with the present version; the draft remains in the git history for inspection. This revision does not change any test, endpoint, data, or the numbers and hashes in section 6. | User | Yes |
+| R5 | 2026-10-20 | As announced in section 3.4, appended before any simulated data are generated: the point-set generation rules for the S3 arc and the S4 scotoma, the implementation details of the simulator that the text left open, and the SHA-256 of every simulator source file (section 7.1). No endpoint, testing order, decision rule, scenario parameter, or number or hash in section 6 is changed | User | Yes (no simulated data generated, no competing method run) |
+| R6 | 2026-10-20 | Corrected the status line at the top: it read "draft v2, unpublished", but v2 was published on 2026-10-20 (GitHub tag `v2.0-prereg`, Zenodo DOI 10.5281/zenodo.23494626); R5 and R6 are later revisions. Only that line of text changes; no content changes | User | Yes (no simulated data generated, no competing method run) |
 
 Any change after publication is appended as a new row (with date, content and rationale) and reported item by item in the paper. Announced forthcoming revisions: implementation of the B4 spatial term (week 3), the S3/S4 point-set generation rules and simulator code hash (before generating simulated data), and the SHA-256 of `sim_test` (immediately after generation).
+
+### 7.1 Details of revision R5: S3/S4 point-set generation rules, open simulator details, and code SHA-256
+
+This section was fixed before any simulated data were generated. Rule identifiers match the source-code comments. All rules use only the public G1 coordinates and the 10-cluster definition; no participant data were used.
+
+**S3 arc (S7 uses the same rule)**
+- S3-1 Nerve fibre model: Jansonius et al. 2009 (Vision Res 49:2157), mean parameters (β_s = −1.9, β_i = 0.7, r₀ = 4°, disc centre at (15°, 2°), modified polar coordinates of Appendix A). For the superior retina c = 1.9 + 1.4·tanh((φ₀ − 121)/14), the sign that matches the paper's statement that c increases from the nasal to the temporal side. Visual field → retina: x unchanged, y negated.
+- S3-2 Each non-central point gets an entry angle φ₀: the grid value (step 0.001°) on |φ₀| ∈ [60°, 180°] with the smallest residual; a solution exists if |residual| < 0.05°. Points without a solution and the central point do not enter S3/S7. The points without a solution are clusters 5 and 10 in the temporal field: they lie nasal to the disc, where fibres enter roughly radially and the model does not apply.
+- S3-3 Candidate arcs: within one hemifield, for each point i with a solution take the window {j : φ₀ᵢ ≤ |φ₀ⱼ| < φ₀ᵢ + 20°}. Keep and de-duplicate the sets that satisfy all of the following: at least 3 points; they touch 2 or 3 clusters; they cover only part of each touched cluster; at least one point has eccentricity > 10°, which separates S3 from the central 10° of S4. Result: 22 arcs (15 spanning 2 clusters, 7 spanning 3; 15 superior, 7 inferior), each with 4–8 points. The full list is in `results/sim_pointsets.json` and in the table below.
+- S3-4 Sampling: draw the number of clusters spanned from {2, 3} with equal probability, then one candidate uniformly among those with that number (both hemifields pooled). The slope level is drawn from {−1, −2} dB/year with equal probability; all points of the arc share it.
+
+| ID | Hemifield | Clusters spanned (clusters) | Points (loc59) |
+|---|---|---|---|
+| 0 | inferior | 2 (7, 8) | 12, 13, 14, 24, 25, 40 |
+| 1 | inferior | 2 (7, 8) | 12, 13, 14, 24, 25, 40, 54 |
+| 2 | inferior | 2 (7, 8) | 12, 13, 23, 24, 25, 39, 40, 54 |
+| 3 | inferior | 2 (7, 8) | 12, 13, 23, 24, 25, 40, 54 |
+| 4 | inferior | 2 (8, 9) | 21, 22, 35, 36, 37, 38, 53 |
+| 5 | inferior | 3 (7, 8, 9) | 22, 23, 36, 37, 38, 39, 53, 54 |
+| 6 | inferior | 2 (8, 9) | 22, 35, 36, 37, 38, 53 |
+| 7 | superior | 2 (2, 3) | 15, 16, 17, 18, 19 |
+| 8 | superior | 2 (2, 3) | 15, 17, 18, 19 |
+| 9 | superior | 2 (2, 3) | 16, 17, 18, 19, 26 |
+| 10 | superior | 2 (2, 3) | 16, 19, 26, 27, 28, 29, 41 |
+| 11 | superior | 2 (2, 3) | 16, 19, 26, 28 |
+| 12 | superior | 2 (2, 3) | 16, 19, 26, 28, 29, 41 |
+| 13 | superior | 2 (2, 3) | 16, 19, 26, 28, 41 |
+| 14 | superior | 3 (2, 3, 4) | 27, 28, 29, 41, 42, 44, 45, 55 |
+| 15 | superior | 3 (2, 3, 4) | 27, 28, 29, 41, 42, 45, 55 |
+| 16 | superior | 2 (2, 3) | 27, 28, 29, 41, 42, 55 |
+| 17 | superior | 2 (2, 3) | 27, 28, 29, 41, 55 |
+| 18 | superior | 3 (2, 3, 4) | 27, 29, 42, 43, 44, 45, 55 |
+| 19 | superior | 3 (2, 3, 4) | 30, 42, 43, 44, 45, 46, 55 |
+| 20 | superior | 3 (2, 3, 4) | 30, 42, 43, 44, 45, 46, 55, 56 |
+| 21 | superior | 3 (2, 3, 4) | 30, 42, 43, 44, 45, 55 |
+
+**S4 paracentral scotoma**
+- S4-1 Eligible points: the 17 points with eccentricity √(x² + y²) ≤ 10°, including the central point.
+- S4-2 Candidate sets: n eligible points that are connected in the neighbour graph (NB-1 below) and whose non-central points all lie in one hemifield. There are 56, 97 and 133 sets for n = 3, 4 and 5.
+- S4-3 Sampling: n from {3, 4, 5} with equal probability, then one set uniformly among those of size n. The slope level is drawn from {−1.5, −3} dB/year with equal probability; all points of the set share it.
+
+**Other scenarios**
+- U-1 Unaffected points in S3, S4 and S7 follow S0 (−0.1 dB/year), the same rule the text states for S2 and S6. In every focal scenario, the slope of an affected point is the drawn value itself; −0.1 is not added to it.
+- S2-1 S2: the number of clusters is drawn from {1, 2} with equal probability; the clusters are drawn uniformly without replacement from the 10. A series draws one slope level, shared by all of its selected clusters.
+- S6-1 S6: locations are drawn independently with the S2 rule (not shared with the S2 series of the same index). The knot is the time midpoint (t₁ + t_k)/2 of the observation window of each k version, so it depends on k.
+- S7-1 S7: locations are drawn independently with the S3 rule. "Mean slope −1 dB/year at the end of 4 examinations" is defined as an OLS slope of −1 for the latent trajectory −a t² over the first 4 examination times of the series. That is, a = 1 / OLS slope(t²); for equally spaced visits this equals the end-to-end slope.
+- S7-2 k ≠ 4: a is set from the first 4 examination times only, so all k versions share one trajectory. k = 3 uses the first 3 examinations; k = 5 and 6 keep accelerating, so their true slope is steeper than −1.
+- S1-1 S1: each series draws one u ~ U(0, 1). In the k version the drop occurs before examination j_k = 2 + ⌊u(k − 1)⌋, which is uniform on {2, …, k}.
+- NB-1 Neighbour convention for the central point: the convention of section 6 item 3 is the only definition in the document. Under it, "neighbours" are points at distance ≤ 6° with yᵢyⱼ ≥ 0, so the central point neighbours every point within 6° in both hemifields. It applies to every use of "neighbouring points" in the document: S4, B5 smoothing and the G1-MST attention bias. For noise generation the central point still joins the superior block, per section 3.3.
+
+**Templates and noise**
+- T-1 Tobit σ: each eye and point gets one constant σₚ = √( mean_v SD_point(f̂_OLS,v)² + SD_offset² ), with the mean taken over all of that eye's examinations. A σ that varied by examination would make the uncensored MLE weighted least squares rather than OLS, contradicting R1's "equals OLS when there is no censoring". A constant σ makes the two agree.
+- T-2 SD_offset is the deconvolved, stratified offset SD from `noise_model.json` (the value used for simulation), not multiplied by the section 3.5 calibration factors. Templates are computed once and are not re-estimated during calibration.
+- T-3 With partial censoring, L-BFGS-B starts from OLS and searches a ∈ [−100, 100] dB and b ∈ [−30, 30] dB/year (to prevent MLE divergence); a is then clipped to [−10, 35] dB. Templates use all of the eye's examinations.
+- N-1 Pointwise noise SD is evaluated at the latent true value f(t_v), clipped at ≥ 0 per the `noise_model.json` rule. y* = f + δ_v + κ_point·SD_point(f)·(L z), with δ_v ~ N(0, (κ_offset·SD_offset)²) and L the Cholesky factor of ρ(d) = a·e^(−d/λ) within hemifield blocks. Where y* < 0 the value is recorded as 0 dB with `censored = True`.
+- N-2 Baseline-MS tertiles: the cut points are the tertiles of baseline MS over development-set eyes (as in `03_noise_model.py`); holdout template eyes use the development cut points.
+- N-3 Simulated values are neither rounded nor capped. The text specifies only censoring at 0 dB.
+
+**Schedules, random numbers and output**
+- K-1 Nested schedules: each series first builds a 6-examination schedule. It takes the template's first min(n, 6) real times and fills any shortfall by drawing, with replacement, from the pool of adjacent intervals of all development eyes. The k version uses the first k examinations, and all k versions share the same standard-normal draws. Padded examinations have missing IOP; age = template baseline age + t.
+- R-1 Random numbers: each series derives 3 independent streams (schedule, scenario parameters, noise) from `SeedSequence([seed, template index (eye_id ascending), scenario index, replicate])`. Seeds come from `config.yaml` (`sim_train` 20261019, `sim_test` 20261119). Results do not depend on generation order. SA8 (no exam-level offset) and SA10 (spatially independent pointwise noise) use the same streams, so they are paired with the main version.
+- O-1 Output: `data/sim_train.npz` and `data/sim_test.npz`; sensitivity variants get the suffix `_SA8` or `_SA10`. Each k has one group of arrays: times, observations, censoring, latent trajectory, IOP, age, and pointwise, cluster and global truths on both scales. Scenario parameters are stored alongside. Zip timestamps and member order are fixed, so identical inputs give identical bytes.
+
+**Calibration (section 3.5)**
+- C-1 The simulated side uses the k = 4 version of `sim_train`, with all five statistics weighted by the S0/S5/S2 mixture weights (the text states the mixture only for the slope SD). The real side uses all development-set examinations, with the same algorithm as `03_noise_model.py`.
+- C-2 Only two multiplicative factors are tuned, κ_offset and κ_point. Each round updates them by the real/simulated ratio of the exam-level offset SD and of the pooled pointwise SD. Scenarios, templates and spatial-correlation parameters are not tuned; at most 3 rounds. The observed MS slope SD and the censored fraction cannot be tuned directly; any remaining gap after tuning is reported in the paper.
+- C-3 Order: publish this revision → generate `sim_train` → calibrate, regenerating `sim_train` with the same seed in each round → generate `sim_test` → immediately append a revision recording the SHA-256 of `sim_test`, the final κ values and the SHA-256 of `data/sim_calibration.json`.
+
+**Guards**
+- G-1 `04_simulator.py` refuses to generate anything, and writes no file, in any of these cases: `config.yaml` revisions lack R5; a listed source hash does not match the file on disk; calibration is not final when `sim_test` is requested; the `sim_test` file already exists. The script never reads `sim_test`.
+
+**SHA-256 of the simulator source and point-set files (computed 2026-10-20)**
+
+| File | SHA-256 |
+|---|---|
+| `src/sim_core.py` | `559b1f87ee7d3350941db352c2133deb6293ee467da9b9d0a950152b6ab094cc` |
+| `src/04_simulator.py` | `e336cf9b5475434b5b5fb02ea1a6d1bffb098456be91d714aeae84c1f5d629ec` |
+| `src/05_calibrate_sim.py` | `a9187a926fcef90f2ec3ebe6c1110a992375119c1bd684acc18fdd1f430e94c2` |
+| `src/test_simulator_toy.py` | `81e9f1863cf9600348f2edd2f3fb3efbb5fa26f368feab5f89e88c88499f6a8d` |
+| `results/sim_pointsets.json` | `f9fbce6aa825df59448f7be6273afbd4eba4784acc3bc1653b34d9be660b6a0e` |
+
+Before this revision, only two things were run. One is `04_simulator.py --pointsets-only`, which reads only the public `data/g1_locations.csv` and writes `results/sim_pointsets.json`. The other is `test_simulator_toy.py`, which uses the public point geometry together with a fixed toy noise model, toy templates and toy participant data, all unrelated to GRAPE; the test's outputs go to a temporary directory that is deleted at the end of the test. No simulated data were generated from GRAPE-derived templates or noise models, and no Tobit template was computed for any GRAPE eye.
