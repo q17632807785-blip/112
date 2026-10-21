@@ -1,6 +1,6 @@
 # 预注册：公开 Octopus G1 视野上、特异度对齐的去噪方法基准（GRAPE 方向 A）
 
-> **状态：v2 已于 2026-10-20 发布（GitHub tag `v2.0-prereg`，Zenodo DOI 10.5281/zenodo.23494626）；其后的修订 R5、R6、R7、R8、R9 见第 7 部分。** 由用户本人发布到公开 GitHub 仓库 https://github.com/q17632807785-blip/112：提交本文件后打 tag 并建 release，release 同步存档到 Zenodo 取得 DOI（GitHub 提交时间可被改写，Zenodo 存档提供不可改的时间戳）。仓库里不放 GRAPE 原始数据和逐人派生数据（`data/*.parquet`、`split.json`），只放本文件、`config.yaml`、`g1_locations.csv` 和代码；第 6 部分给出未公开文件的 SHA-256。
+> **状态：v2 已于 2026-10-20 发布（GitHub tag `v2.0-prereg`，Zenodo DOI 10.5281/zenodo.23494626）；其后的修订 R5、R6、R7、R8、R9、R10 见第 7 部分。** 由用户本人发布到公开 GitHub 仓库 https://github.com/q17632807785-blip/112：提交本文件后打 tag 并建 release，release 同步存档到 Zenodo 取得 DOI（GitHub 提交时间可被改写，Zenodo 存档提供不可改的时间戳）。仓库里不放 GRAPE 原始数据和逐人派生数据（`data/*.parquet`、`split.json`），只放本文件、`config.yaml`、`g1_locations.csv` 和代码；第 6 部分给出未公开文件的 SHA-256。
 > 生成日期：2026-10-20（Asia/Shanghai）。依据：`方向A_研究计划_最终版.md`（下称“计划”）及 2026-10-20 修订 R1、R2。
 > 本文件取代 `preregistration_draft.md`。`config.yaml` 发布前须与第 5 部分逐字同步。
 
@@ -316,7 +316,7 @@ class Method:
 project: GRAPE_directionA_VF_denoising_benchmark
 plan_version: "最终版 2026-10-20"
 created: "2026-10-20"
-revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355", "R5 2026-10-20 S3/S4 点集生成规则、模拟器未定细则与模拟器代码 SHA-256（生成任何模拟数据之前）", "R6 2026-10-20 更正文首状态行：v2 已发布（DOI 10.5281/zenodo.23494626）", "R7 2026-10-21 sim_test SHA-256、最终校准 κ 与 sim_calibration.json SHA-256", "R8 2026-10-21 B4 空间项锁定为 spaMM Matérn（同半视野；第 3 周计时提前于 2026-10-21 完成）", "R9 2026-10-21 第 5 周检查点通过（B4 vs B1）；披露提前运行；更新 lmm.py SHA-256（spatial_impl 未改）"]
+revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355", "R5 2026-10-20 S3/S4 点集生成规则、模拟器未定细则与模拟器代码 SHA-256（生成任何模拟数据之前）", "R6 2026-10-20 更正文首状态行：v2 已发布（DOI 10.5281/zenodo.23494626）", "R7 2026-10-21 sim_test SHA-256、最终校准 κ 与 sim_calibration.json SHA-256", "R8 2026-10-21 B4 空间项锁定为 spaMM Matérn（同半视野；第 3 周计时提前于 2026-10-21 完成）", "R9 2026-10-21 第 5 周检查点通过（B4 vs B1）；披露提前运行；更新 lmm.py SHA-256（spatial_impl 未改）", "R10 2026-10-21 B4 逐点 SE 修复；更新 lmm.py SHA-256（spatial_impl 与簇级检查点未改）"]
 
 paths:
   raw_xlsx: "../VF and clinical information.xlsx"   # 相对 directionA/；原始数据不复制进 data/
@@ -525,8 +525,9 @@ evaluation:
 | R7 | 2026-10-21 | 按第 3.4 节与修订 R5 规则 C-3 的预告，在校准结束并生成 `sim_test` 后立即追加：`data/sim_test.npz` 的 SHA-256、最终 κ_offset / κ_point、`data/sim_calibration.json` 的 SHA-256，以及校准五项检查的结果摘要（第 7.2 节）。不改变任何终点、检验顺序、判定规则、情景参数或第 6 部分的数值与哈希；不读取 `sim_test` 做任何方法评估 | 用户 | 是（尚未运行任何参赛方法；`sim_test` 仍封存至 2027-01-04） |
 | R8 | 2026-10-21 | B4 空间项实现锁定为 spaMM Matérn（同半视野内）。正式计时：开发集随机 20 眼（种子 20261021），spaMM 拟合耗时 30.90 s；按眼数线性外推全部 185 只开发集训练眼约 0.0794 h ≤ 24 h，故采用 `spaMM_matern_within_hemifield`（不改用 CAR）。实现见 `src/methods/lmm.py`（`spatial_impl` 字符串与 Matérn 参数），计时脚本 `src/17b_b4_timing_formal.py`；SHA-256 见第 7.3 节。**披露**：预注册原预告第 3 周窗口为 2026-11-02 至 11-08，应研究者要求于 2026-10-21 提前完成计时并发布本修订；不改变任何终点、检验顺序、判定规则、情景参数或第 6 部分数值与哈希；不读取 `sim_test`。 | 用户 | 是 |
 | R9 | 2026-10-21 | 第 5 周检查点（§3.5）：在 `sim_train`（k = 4，情景等权簇级 RMSE）上比较 B4（`spaMM_matern_within_hemifield`）与 B1；按开发集模板人有放回重抽 2000 次。结果：RMSE_B4 = 0.926384，RMSE_B1 = 1.379045，RMSE_B4 − RMSE_B1 = −0.452661，95% CI [−0.493479, −0.405430]，全部 < 0 → **通过**。**披露**：原窗口为 2026-11-16 至 11-22，应研究者要求于 2026-10-21 提前运行。首次实现因簇级过度收缩与向访视均值的 Matérn kriging 未通过；在**不改** R8 锁定字符串 `spaMM_matern_within_hemifield` 的前提下，修正残差 Matérn / 方差分量 / EB-BLUP 后重跑并通过。更新后的 `src/methods/lmm.py` SHA-256 = `69b7293bb6393cb19a534b3c7d53b6bf99310d3c2afb758fd22e32c603aff477`（见第 7.4 节）。不改变终点、检验顺序、判定规则、情景参数、第 6 部分哈希或 R8 的 spatial_impl 字符串；不读取 `sim_test`。 | 用户 | 否（本修订记录已按 §3.5 跑出的检查点结果） |
+| R10 | 2026-10-21 | 修复 B4 逐点标准误：此前推理端把簇轨迹广播到簇内所有点，使逐点残差恒为 0、`se_point` 塌缩；改为以同半视野残差 Matérn 平滑后的表面作为 `denoised` 再算逐点 OLS/SE。簇级斜率与 SE、以及 R9 记录的第 5 周检查点簇级 RMSE（B4 = 0.926384，B1 = 1.379045）**不变**。更新 `src/methods/lmm.py` SHA-256 = `0bc51e64a750445755ed099b9ac567f0a60344876b5f9eae03171ef74e8a2817`（见第 7.5 节；取代 R9 表中的 `69b7293bb6393cb19a534b3c7d53b6bf99310d3c2afb758fd22e32c603aff477`）。**不改** R8 锁定字符串 `spaMM_matern_within_hemifield`；不改变终点、检验顺序、判定规则、情景参数或第 6 部分哈希；不读取 `sim_test`。 | 用户 | 否（实现修正；簇级主终点数字未改） |
 
-发布后的任何改动都追加为新的一行（带日期、内容、理由），并在论文中逐条报告。已预告的追加修订：B4 空间项实现已由 R8 兑现（计时提前于 2026-10-21 完成，见第 7.3 节）；第 5 周 B4 vs B1 检查点已由 R9 兑现（提前于 2026-10-21 运行并通过，见第 7.4 节）；S3/S4 点集生成规则与模拟器代码哈希、`sim_test` 的 SHA-256 已分别由 R5、R7 兑现。
+发布后的任何改动都追加为新的一行（带日期、内容、理由），并在论文中逐条报告。已预告的追加修订：B4 空间项实现已由 R8 兑现（计时提前于 2026-10-21 完成，见第 7.3 节）；第 5 周 B4 vs B1 检查点已由 R9 兑现（提前于 2026-10-21 运行并通过，见第 7.4 节）；B4 逐点 SE 修复与实现哈希更新已由 R10 兑现（见第 7.5 节）；S3/S4 点集生成规则与模拟器代码哈希、`sim_test` 的 SHA-256 已分别由 R5、R7 兑现。
 
 ### 7.1 修订 R5 细则：S3/S4 点集生成规则、模拟器未定事项与代码 SHA-256
 
@@ -706,3 +707,24 @@ evaluation:
 （R8 第 7.3 节表中的 `lmm.py` 哈希为修正前版本，以本表为准。）
 
 本修订把 R9 追加进 `config.yaml` 的 `revisions`。不改变 H1–H4、情景、真值尺度、封存规则、第 6 部分哈希或 R8 锁定的 `spaMM_matern_within_hemifield`；不读取 `sim_test`。
+
+### 7.5 修订 R10：B4 逐点 SE 修复与实现哈希更新
+
+在 R9 锁定的 `spaMM_matern_within_hemifield` 实现上，发现推理端把簇级轨迹广播到簇内每一个点，导致逐点 OLS 残差恒为 0、`se_point` 塌缩，逐点 SE 校准系数异常。本修订只改这一点：
+
+- `denoised` = 同半视野残差 Matérn 平滑后的表面（相对训练位点均值）；
+- 簇级斜率 / SE 仍由 EB-BLUP 写入，与 R9 检查点所用簇级估计一致；
+- **不改** `spatial_impl` 字符串。
+
+**实现文件 SHA-256（2026-10-21，本修订）**
+
+| 文件 | SHA-256 |
+|---|---|
+| `src/methods/lmm.py` | `0bc51e64a750445755ed099b9ac567f0a60344876b5f9eae03171ef74e8a2817` |
+
+（R9 第 7.4 节表中的 `lmm.py` 哈希 `69b7293bb6393cb19a534b3c7d53b6bf99310d3c2afb758fd22e32c603aff477` 为逐点 SE 修复前版本，以本表为准。）
+
+**簇级数字未变**：第 5 周检查点（R9）情景等权簇级 RMSE 仍为 B4 = 0.926384、B1 = 1.379045，95% CI 全部 < 0。本修订不重跑、不改写该检查点判定。
+
+本修订把 R10 追加进 `config.yaml` 的 `revisions`。不改变 H1–H4、情景、真值尺度、封存规则、第 6 部分哈希或 R8 锁定的 `spaMM_matern_within_hemifield`；不读取 `sim_test`。
+
