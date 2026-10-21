@@ -1,6 +1,6 @@
 # 预注册：公开 Octopus G1 视野上、特异度对齐的去噪方法基准（GRAPE 方向 A）
 
-> **状态：v2 已于 2026-10-20 发布（GitHub tag `v2.0-prereg`，Zenodo DOI 10.5281/zenodo.23494626）；其后的修订 R5、R6 见第 7 部分。** 由用户本人发布到公开 GitHub 仓库 https://github.com/q17632807785-blip/112：提交本文件后打 tag 并建 release，release 同步存档到 Zenodo 取得 DOI（GitHub 提交时间可被改写，Zenodo 存档提供不可改的时间戳）。仓库里不放 GRAPE 原始数据和逐人派生数据（`data/*.parquet`、`split.json`），只放本文件、`config.yaml`、`g1_locations.csv` 和代码；第 6 部分给出未公开文件的 SHA-256。
+> **状态：v2 已于 2026-10-20 发布（GitHub tag `v2.0-prereg`，Zenodo DOI 10.5281/zenodo.23494626）；其后的修订 R5、R6、R7 见第 7 部分。** 由用户本人发布到公开 GitHub 仓库 https://github.com/q17632807785-blip/112：提交本文件后打 tag 并建 release，release 同步存档到 Zenodo 取得 DOI（GitHub 提交时间可被改写，Zenodo 存档提供不可改的时间戳）。仓库里不放 GRAPE 原始数据和逐人派生数据（`data/*.parquet`、`split.json`），只放本文件、`config.yaml`、`g1_locations.csv` 和代码；第 6 部分给出未公开文件的 SHA-256。
 > 生成日期：2026-10-20（Asia/Shanghai）。依据：`方向A_研究计划_最终版.md`（下称“计划”）及 2026-10-20 修订 R1、R2。
 > 本文件取代 `preregistration_draft.md`。`config.yaml` 发布前须与第 5 部分逐字同步。
 
@@ -316,7 +316,7 @@ class Method:
 project: GRAPE_directionA_VF_denoising_benchmark
 plan_version: "最终版 2026-10-20"
 created: "2026-10-20"
-revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355", "R5 2026-10-20 S3/S4 点集生成规则、模拟器未定细则与模拟器代码 SHA-256（生成任何模拟数据之前）", "R6 2026-10-20 更正文首状态行：v2 已发布（DOI 10.5281/zenodo.23494626）"]
+revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355", "R5 2026-10-20 S3/S4 点集生成规则、模拟器未定细则与模拟器代码 SHA-256（生成任何模拟数据之前）", "R6 2026-10-20 更正文首状态行：v2 已发布（DOI 10.5281/zenodo.23494626）", "R7 2026-10-21 sim_test SHA-256、最终校准 κ 与 sim_calibration.json SHA-256"]
 
 paths:
   raw_xlsx: "../VF and clinical information.xlsx"   # 相对 directionA/；原始数据不复制进 data/
@@ -408,7 +408,7 @@ sim_calibration_tolerance:
 sim_test_seal:
   sealed: true                 # 解封日前任何脚本都不许读 sim_test；评估脚本必须检查此开关
   unseal_not_before_date: "2027-01-04"   # 第 12 周第一天
-  sha256: null                 # 由 04_simulator.py 生成后写入，并追加为预注册修订
+  sha256: "efae5bfacb41eaa4be15488722697f2f546bb8ee5e6fe156d5f3c9a63e2f97fe"  # R7：sim_test.npz；解封日前评估脚本只核对此哈希，不读文件内容
 
 methods:
   B1_min_visits: 3
@@ -522,8 +522,9 @@ evaluation:
 | R4 | 2026-10-20 | 2026-10-20 16:39（UTC+8）一份较早的、已被取代的预注册草稿（提交 3129355）被直接推送到本仓库 main 分支并短暂公开。该草稿不是本预注册，其中的数值、哈希和代码均不适用。本次提交以本版本整体替换该草稿，草稿保留在 git 历史中以供查验。本修订不改变任何检验、终点、数据或第 6 部分的数值与哈希。 | 用户 | 是 |
 | R5 | 2026-10-20 | 按第 3.4 节的预告，在生成任何模拟数据之前追加：S3 弧与 S4 暗点的点集生成规则、模拟器实现中原文未定的细则、模拟器全部源码的 SHA-256（第 7.1 节）。不改变任何终点、检验顺序、判定规则、情景参数或第 6 部分的数值与哈希 | 用户 | 是（尚未生成任何模拟数据，尚未运行任何参赛方法） |
 | R6 | 2026-10-20 | 更正文首状态行：原文写“草稿 v2，未发布”，实际 v2 已于 2026-10-20 发布（GitHub tag `v2.0-prereg`，Zenodo DOI 10.5281/zenodo.23494626），R5、R6 为其后的修订。只改这一行文字，不改变任何内容 | 用户 | 是（尚未生成任何模拟数据，尚未运行任何参赛方法） |
+| R7 | 2026-10-21 | 按第 3.4 节与修订 R5 规则 C-3 的预告，在校准结束并生成 `sim_test` 后立即追加：`data/sim_test.npz` 的 SHA-256、最终 κ_offset / κ_point、`data/sim_calibration.json` 的 SHA-256，以及校准五项检查的结果摘要（第 7.2 节）。不改变任何终点、检验顺序、判定规则、情景参数或第 6 部分的数值与哈希；不读取 `sim_test` 做任何方法评估 | 用户 | 是（尚未运行任何参赛方法；`sim_test` 仍封存至 2027-01-04） |
 
-发布后的任何改动都追加为新的一行（带日期、内容、理由），并在论文中逐条报告。已预告的追加修订：B4 空间项实现（第 3 周）、S3/S4 点集生成规则与模拟器代码哈希（生成模拟数据前）、`sim_test` 的 SHA-256（生成后立即）。
+发布后的任何改动都追加为新的一行（带日期、内容、理由），并在论文中逐条报告。已预告的追加修订：B4 空间项实现（第 3 周）；S3/S4 点集生成规则与模拟器代码哈希、`sim_test` 的 SHA-256 已分别由 R5、R7 兑现。
 
 ### 7.1 修订 R5 细则：S3/S4 点集生成规则、模拟器未定事项与代码 SHA-256
 
@@ -606,3 +607,36 @@ evaluation:
 | `results/sim_pointsets.json` | `f9fbce6aa825df59448f7be6273afbd4eba4784acc3bc1653b34d9be660b6a0e` |
 
 本修订前，只运行过两样东西。一是 `04_simulator.py --pointsets-only`：它只读公开的 `data/g1_locations.csv`，写出 `results/sim_pointsets.json`。二是 `test_simulator_toy.py`：它使用公开的点位几何，以及固定的玩具噪声模型、玩具模板和玩具受试者数据（均与 GRAPE 无关），输出写到临时目录，测试结束即删除。没有用 GRAPE 派生的模板或噪声模型生成过任何模拟数据，也没有计算过 GRAPE 眼的 Tobit 模板。
+
+### 7.2 修订 R7：`sim_test` 封存哈希与最终校准系数
+
+按修订 R5 规则 C-3，在校准 `final = true` 之后生成 `sim_test`，并立即记录下列哈希与系数。`sim_test` 在 2027-01-04 之前仍保持封存（`config.yaml` 的 `sim_test_seal.sealed = true`）；本修订不授权任何方法读取它。
+
+**封存与校准文件 SHA-256（2026-10-21 计算，Asia/Shanghai）**
+
+| 文件 | SHA-256 |
+|---|---|
+| `data/sim_test.npz` | `efae5bfacb41eaa4be15488722697f2f546bb8ee5e6fe156d5f3c9a63e2f97fe` |
+| `data/sim_calibration.json` | `22f615bdf64bc321dcc40b067d82f7ad112faa50fa1dd1bf39bc6f3973361350` |
+| `data/sim_train.npz`（最终一轮，供复核，不封存） | `2bc74625ec6ca36f049ef293f99e166e71ed6ffaa083503bd7240c0ead3c7a3a` |
+
+**最终校准系数（写入 `data/sim_calibration.json`，并用于生成上述 `sim_train` / `sim_test`）**
+
+- κ_offset = 1.0643078763377154
+- κ_point = 1.0518576611587154
+- `final = true`，`round = 3`（达到修订 R5 规则 C-2 的最多 3 轮上限）
+- 生成参数：`sim_train` 种子 20261019、n_rep = 10、185 只开发集模板眼；`sim_test` 种子 20261119、n_rep = 20、78 只留出集模板眼；两者共用上述最终 κ；numpy 2.5.4
+
+**校准五项检查（最终一轮，`sim_train` k = 4，S0/S5/S2 混合权重 0.497 / 0.303 / 0.200）**
+
+| 统计量 | 真实（开发集） | 模拟 | 相对/绝对差距 | 容差 | 是否通过 |
+|---|---|---|---|---|---|
+| MS 残差 SD | 1.5016 | 1.5014 | 相对 0.01% | ≤ 10% | 是 |
+| 检查整体偏移 SD | 1.5016 | 1.5014 | 相对 0.01% | ≤ 10% | 是 |
+| 逐点残差 SD（7 层均过） | — | — | 各层相对最大约 14.5%（第 0 层） | 每层 ≤ 15% | 是 |
+| 观察 MS 斜率 SD | 1.3886 | 0.9224 | 相对 33.6% | ≤ 15% | **否** |
+| 删失比例 | 目标 0.0415；模拟 0.0466 | — | 绝对 0.51 个百分点 | ≤ 1 个百分点 | 是 |
+
+按规则 C-2：只调 κ_offset、κ_point；观察 MS 斜率 SD 与删失比例不能直接调，调满 3 轮后仍不合格的在文中报告差距。本轮仅观察 MS 斜率 SD 未过容差（模拟侧更窄），差距如实记录；不因此改情景参数、模板或混合权重，也不重开校准。五项中其余四项在最终 κ 下全部合格。
+
+本修订同步把 `config.yaml` 的 `sim_test_seal.sha256` 从 `null` 写成上表 `sim_test.npz` 的哈希，并把 R7 追加进 `revisions`。不改动第 6 部分已定死文件的哈希，不改动模拟器源码。
