@@ -50,7 +50,11 @@ w1 = dt.date.fromisoformat(c["week1_start"]); un = dt.date.fromisoformat(c["sim_
 chk("week1_start 是周一", w1.weekday() == 0, str(w1))
 chk("unseal_not_before_date == 2027-01-04 == 第 12 周第一天", un == dt.date(2027, 1, 4) == w1 + dt.timedelta(weeks=11), str(un))
 chk("3.4 正文“2027-01-04（第 12 周第一天）”", "2027-01-04（第 12 周第一天）" in s34)
-chk("sim_test_seal.sealed == true 且 sha256 为空", c["sim_test_seal"]["sealed"] is True and c["sim_test_seal"]["sha256"] is None)
+_sh = c["sim_test_seal"]["sha256"]
+_sh_ok = _sh is None or (isinstance(_sh, str) and len(_sh) == 64 and all(ch in "0123456789abcdef" for ch in _sh))
+chk("sim_test_seal.sealed == true 且 sha256 为空或为 64 位小写十六进制（R7 起写入）", c["sim_test_seal"]["sealed"] is True and _sh_ok, str(_sh))
+if isinstance(_sh, str):
+    chk("正文第 7.2 节含 sim_test sha256", _sh in text and "### 7.2" in text)
 for wk, a, b in [(3, "2026-11-02", "11-08"), (5, "2026-11-16", "11-22"), (11, "2026-12-28", "2027-01-03")]:
     d0 = w1 + dt.timedelta(weeks=wk - 1)
     chk(f"第 {wk} 周日期 {a} 起", d0 == dt.date.fromisoformat(a) and (d0 + dt.timedelta(days=6)).isoformat().endswith(b) and a in text)

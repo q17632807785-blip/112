@@ -2,7 +2,7 @@
 
 > **English translation.** This is a full translation of `preregistration.md` (Simplified Chinese). In case of any discrepancy, the Chinese version is authoritative. Numbers, mathematical expressions and tables are reproduced verbatim; the YAML block in Part 5 is reproduced verbatim (including its Chinese comments) and is byte-for-byte identical in content to `config.yaml`.
 
-> **Status: v2 published on 2026-10-20 (GitHub tag `v2.0-prereg`, Zenodo DOI 10.5281/zenodo.23494626); later revisions R5 and R6 are listed in section 7.** To be published by the user in the public GitHub repository https://github.com/q17632807785-blip/112: after this file is committed, a tag and a release are created, and the release is archived on Zenodo to obtain a DOI (GitHub commit times can be rewritten; the Zenodo archive provides an immutable timestamp). The repository does not contain the raw GRAPE data or per-person derived data (`data/*.parquet`, `split.json`); it contains only this file, `config.yaml`, `g1_locations.csv` and the code; Part 6 gives the SHA-256 of the files that are not made public.
+> **Status: v2 published on 2026-10-20 (GitHub tag `v2.0-prereg`, Zenodo DOI 10.5281/zenodo.23494626); later revisions R5, R6 and R7 are listed in section 7.** To be published by the user in the public GitHub repository https://github.com/q17632807785-blip/112: after this file is committed, a tag and a release are created, and the release is archived on Zenodo to obtain a DOI (GitHub commit times can be rewritten; the Zenodo archive provides an immutable timestamp). The repository does not contain the raw GRAPE data or per-person derived data (`data/*.parquet`, `split.json`); it contains only this file, `config.yaml`, `g1_locations.csv` and the code; Part 6 gives the SHA-256 of the files that are not made public.
 > Date generated: 2026-10-20 (Asia/Shanghai). Basis: `方向A_研究计划_最终版.md` (Direction A research plan, final version; hereafter "the plan") and the 2026-10-20 revisions R1 and R2.
 > This file supersedes `preregistration_draft.md`. Before publication, `config.yaml` must be synchronised verbatim with Part 5.
 
@@ -322,7 +322,7 @@ Using only `sim_train` and the development set: the difference in cluster-level 
 project: GRAPE_directionA_VF_denoising_benchmark
 plan_version: "最终版 2026-10-20"
 created: "2026-10-20"
-revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355", "R5 2026-10-20 S3/S4 点集生成规则、模拟器未定细则与模拟器代码 SHA-256（生成任何模拟数据之前）", "R6 2026-10-20 更正文首状态行：v2 已发布（DOI 10.5281/zenodo.23494626）"]
+revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355", "R5 2026-10-20 S3/S4 点集生成规则、模拟器未定细则与模拟器代码 SHA-256（生成任何模拟数据之前）", "R6 2026-10-20 更正文首状态行：v2 已发布（DOI 10.5281/zenodo.23494626）", "R7 2026-10-21 sim_test SHA-256、最终校准 κ 与 sim_calibration.json SHA-256"]
 
 paths:
   raw_xlsx: "../VF and clinical information.xlsx"   # 相对 directionA/；原始数据不复制进 data/
@@ -414,7 +414,7 @@ sim_calibration_tolerance:
 sim_test_seal:
   sealed: true                 # 解封日前任何脚本都不许读 sim_test；评估脚本必须检查此开关
   unseal_not_before_date: "2027-01-04"   # 第 12 周第一天
-  sha256: null                 # 由 04_simulator.py 生成后写入，并追加为预注册修订
+  sha256: "efae5bfacb41eaa4be15488722697f2f546bb8ee5e6fe156d5f3c9a63e2f97fe"  # R7：sim_test.npz；解封日前评估脚本只核对此哈希，不读文件内容
 
 methods:
   B1_min_visits: 3
@@ -528,8 +528,9 @@ evaluation:
 | R4 | 2026-10-20 | At 16:39 (UTC+8) on 2026-10-20, an earlier, superseded draft of this preregistration (commit 3129355) was pushed directly to the main branch of this repository and was briefly public. That draft is not this preregistration; its numbers, hashes and code do not apply. This commit replaces the draft in full with the present version; the draft remains in the git history for inspection. This revision does not change any test, endpoint, data, or the numbers and hashes in section 6. | User | Yes |
 | R5 | 2026-10-20 | As announced in section 3.4, appended before any simulated data are generated: the point-set generation rules for the S3 arc and the S4 scotoma, the implementation details of the simulator that the text left open, and the SHA-256 of every simulator source file (section 7.1). No endpoint, testing order, decision rule, scenario parameter, or number or hash in section 6 is changed | User | Yes (no simulated data generated, no competing method run) |
 | R6 | 2026-10-20 | Corrected the status line at the top: it read "draft v2, unpublished", but v2 was published on 2026-10-20 (GitHub tag `v2.0-prereg`, Zenodo DOI 10.5281/zenodo.23494626); R5 and R6 are later revisions. Only that line of text changes; no content changes | User | Yes (no simulated data generated, no competing method run) |
+| R7 | 2026-10-21 | As announced in section 3.4 and rule C-3 of revision R5, appended immediately after calibration finished and `sim_test` was generated: the SHA-256 of `data/sim_test.npz`, the final κ_offset / κ_point, the SHA-256 of `data/sim_calibration.json`, and a summary of the five calibration checks (section 7.2). No endpoint, testing order, decision rule, scenario parameter, or number or hash in section 6 is changed; `sim_test` is not read for any method evaluation | User | Yes (no competing method run; `sim_test` remains sealed until 2027-01-04) |
 
-Any change after publication is appended as a new row (with date, content and rationale) and reported item by item in the paper. Announced forthcoming revisions: implementation of the B4 spatial term (week 3), the S3/S4 point-set generation rules and simulator code hash (before generating simulated data), and the SHA-256 of `sim_test` (immediately after generation).
+Any change after publication is appended as a new row (with date, content and reason) and reported item by item in the paper. Announced follow-up revisions: B4 spatial-term implementation (week 3); the S3/S4 point-set rules and simulator code hash, and the SHA-256 of `sim_test`, have been fulfilled by R5 and R7 respectively.
 
 ### 7.1 Details of revision R5: S3/S4 point-set generation rules, open simulator details, and code SHA-256
 
@@ -612,3 +613,36 @@ This section was fixed before any simulated data were generated. Rule identifier
 | `results/sim_pointsets.json` | `f9fbce6aa825df59448f7be6273afbd4eba4784acc3bc1653b34d9be660b6a0e` |
 
 Before this revision, only two things were run. One is `04_simulator.py --pointsets-only`, which reads only the public `data/g1_locations.csv` and writes `results/sim_pointsets.json`. The other is `test_simulator_toy.py`, which uses the public point geometry together with a fixed toy noise model, toy templates and toy participant data, all unrelated to GRAPE; the test's outputs go to a temporary directory that is deleted at the end of the test. No simulated data were generated from GRAPE-derived templates or noise models, and no Tobit template was computed for any GRAPE eye.
+
+### 7.2 Details of revision R7: sealed `sim_test` hash and final calibration coefficients
+
+Per rule C-3 of revision R5, `sim_test` was generated after calibration reached `final = true`, and the hashes and coefficients below are recorded immediately. `sim_test` remains sealed until 2027-01-04 (`sim_test_seal.sealed = true` in `config.yaml`); this revision does not authorise any method to read it.
+
+**Sealed and calibration file SHA-256 (computed 2026-10-21, Asia/Shanghai)**
+
+| File | SHA-256 |
+|---|---|
+| `data/sim_test.npz` | `efae5bfacb41eaa4be15488722697f2f546bb8ee5e6fe156d5f3c9a63e2f97fe` |
+| `data/sim_calibration.json` | `22f615bdf64bc321dcc40b067d82f7ad112faa50fa1dd1bf39bc6f3973361350` |
+| `data/sim_train.npz` (final round, for audit; not sealed) | `2bc74625ec6ca36f049ef293f99e166e71ed6ffaa083503bd7240c0ead3c7a3a` |
+
+**Final calibration coefficients (written to `data/sim_calibration.json` and used to generate the `sim_train` / `sim_test` above)**
+
+- κ_offset = 1.0643078763377154
+- κ_point = 1.0518576611587154
+- `final = true`, `round = 3` (hit the maximum of 3 tuning rounds under rule C-2 of revision R5)
+- Generation parameters: `sim_train` seed 20261019, n_rep = 10, 185 development-set template eyes; `sim_test` seed 20261119, n_rep = 20, 78 holdout template eyes; both use the final κ above; numpy 2.5.4
+
+**Five calibration checks (final round; `sim_train` k = 4; S0/S5/S2 mix weights 0.497 / 0.303 / 0.200)**
+
+| Statistic | Real (development set) | Simulated | Relative / absolute gap | Tolerance | Pass |
+|---|---|---|---|---|---|
+| MS residual SD | 1.5016 | 1.5014 | rel 0.01% | ≤ 10% | Yes |
+| Visit-level offset SD | 1.5016 | 1.5014 | rel 0.01% | ≤ 10% | Yes |
+| Pointwise residual SD (all 7 bins) | — | — | max bin rel ≈ 14.5% (bin 0) | ≤ 15% per bin | Yes |
+| Observed MS slope SD | 1.3886 | 0.9224 | rel 33.6% | ≤ 15% | **No** |
+| Censoring fraction | target 0.0415; sim 0.0466 | — | abs 0.51 percentage points | ≤ 1 pp | Yes |
+
+Per rule C-2: only κ_offset and κ_point are tuned; observed MS slope SD and the censoring fraction cannot be tuned directly, and any remaining gap after 3 rounds is reported in the text. Only observed MS slope SD missed its tolerance (simulated side narrower); the gap is recorded as-is. Scenario parameters, templates and mix weights are not changed, and calibration is not reopened. The other four of the five checks all passed at the final κ.
+
+This revision also sets `sim_test_seal.sha256` in `config.yaml` from `null` to the `sim_test.npz` hash above, and appends R7 to `revisions`. No hash in section 6 and no simulator source file is changed.
