@@ -1,0 +1,32 @@
+{
+  "checkpoint": "week5_B4_vs_B1_cluster_RMSE",
+  "prereg_section": "3.5",
+  "announced_window": "2026-11-16 to 2026-11-22",
+  "run_date_local": "2026-10-21",
+  "early_run": true,
+  "early_note": "检查点窗口原为第 5 周；应研究者要求提前运行（R8 已锁定空间项）",
+  "k": 4,
+  "n_sequences": 14800,
+  "n_dev_subjects_boot": 101,
+  "n_bootstrap": 2000,
+  "bootstrap_unit": "meta_template_subject (development-set person)",
+  "aggregation": "scenario_equal_weight_cluster_RMSE",
+  "spatial_impl": "spaMM_matern_within_hemifield",
+  "sim_test_opened": false,
+  "sim_test_hash_verified": "efae5bfacb41eaa4be15488722697f2f546bb8ee5e6fe156d5f3c9a63e2f97fe",
+  "rmse_B4": 0.9263840026679513,
+  "rmse_B1": 1.3790450754274555,
+  "diff_B4_minus_B1": -0.4526610727595042,
+  "boot_mean_diff": -0.451674246008387,
+  "boot_ci95": [
+    -0.4934786454718522,
+    -0.40542977683846293
+  ],
+  "passed": true,
+  "pass_rule": "95% CI for (RMSE_B4 - RMSE_B1) entirely < 0",
+  "code_sha256": {
+    "lmm": "69b7293bb6393cb19a534b3c7d53b6bf99310d3c2afb758fd22e32c603aff477",
+    "script": "6766e4f2b47dc79b30809ee86406bf6b5b91b757a1b59d35ceb263e8443f8d25"
+  },
+  "seconds": 5.692607879638672
+}
