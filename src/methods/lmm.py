@@ -331,13 +331,10 @@ class B4(Method):
         except np.linalg.LinAlgError:
             est = self._b1.estimate(series); est.failed = True; est.fallback = "B1"; return est
 
-        den = y_s.copy()
-        for c in range(1, 11):
-            m = self.geo.cluster == c
-            a_ols, _, _ = ols_slopes_matrix(t, cm[:, c - 1:c])
-            traj = float(a_ols[0]) + slopes[c - 1] * t
-            den[:, m] = traj[:, None]
-        est = fill_estimate_from_denoised(series.t, den, self.geo.cluster)
+        # Denoised surface = spatially smoothed series (point-level OLS/SE).
+        # Do NOT broadcast cluster trajectories onto every point: that makes
+        # within-cluster residuals identically zero and collapses se_point.
+        est = fill_estimate_from_denoised(series.t, y_s, self.geo.cluster)
         est.slope_cluster = slopes
         est.se_cluster = ses
         est.slope_global = float(np.mean(slopes))
