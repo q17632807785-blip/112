@@ -2,7 +2,7 @@
 
 > **English translation.** This is a full translation of `preregistration.md` (Simplified Chinese). In case of any discrepancy, the Chinese version is authoritative. Numbers, mathematical expressions and tables are reproduced verbatim; the YAML block in Part 5 is reproduced verbatim (including its Chinese comments) and is byte-for-byte identical in content to `config.yaml`.
 
-> **Status: v2 published on 2026-10-20 (GitHub tag `v2.0-prereg`, Zenodo DOI 10.5281/zenodo.23494626); later revisions R5, R6, R7 and R8 are listed in section 7.** To be published by the user in the public GitHub repository https://github.com/q17632807785-blip/112: after this file is committed, a tag and a release are created, and the release is archived on Zenodo to obtain a DOI (GitHub commit times can be rewritten; the Zenodo archive provides an immutable timestamp). The repository does not contain the raw GRAPE data or per-person derived data (`data/*.parquet`, `split.json`); it contains only this file, `config.yaml`, `g1_locations.csv` and the code; Part 6 gives the SHA-256 of the files that are not made public.
+> **Status: v2 published on 2026-10-20 (GitHub tag `v2.0-prereg`, Zenodo DOI 10.5281/zenodo.23494626); later revisions R5, R6, R7, R8 and R9 are listed in section 7.** To be published by the user in the public GitHub repository https://github.com/q17632807785-blip/112: after this file is committed, a tag and a release are created, and the release is archived on Zenodo to obtain a DOI (GitHub commit times can be rewritten; the Zenodo archive provides an immutable timestamp). The repository does not contain the raw GRAPE data or per-person derived data (`data/*.parquet`, `split.json`); it contains only this file, `config.yaml`, `g1_locations.csv` and the code; Part 6 gives the SHA-256 of the files that are not made public.
 > Date generated: 2026-10-20 (Asia/Shanghai). Basis: `方向A_研究计划_最终版.md` (Direction A research plan, final version; hereafter "the plan") and the 2026-10-20 revisions R1 and R2.
 > This file supersedes `preregistration_draft.md`. Before publication, `config.yaml` must be synchronised verbatim with Part 5.
 
@@ -322,7 +322,7 @@ Using only `sim_train` and the development set: the difference in cluster-level 
 project: GRAPE_directionA_VF_denoising_benchmark
 plan_version: "最终版 2026-10-20"
 created: "2026-10-20"
-revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355", "R5 2026-10-20 S3/S4 点集生成规则、模拟器未定细则与模拟器代码 SHA-256（生成任何模拟数据之前）", "R6 2026-10-20 更正文首状态行：v2 已发布（DOI 10.5281/zenodo.23494626）", "R7 2026-10-21 sim_test SHA-256、最终校准 κ 与 sim_calibration.json SHA-256", "R8 2026-10-21 B4 空间项锁定为 spaMM Matérn（同半视野；第 3 周计时提前于 2026-10-21 完成）"]
+revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355", "R5 2026-10-20 S3/S4 点集生成规则、模拟器未定细则与模拟器代码 SHA-256（生成任何模拟数据之前）", "R6 2026-10-20 更正文首状态行：v2 已发布（DOI 10.5281/zenodo.23494626）", "R7 2026-10-21 sim_test SHA-256、最终校准 κ 与 sim_calibration.json SHA-256", "R8 2026-10-21 B4 空间项锁定为 spaMM Matérn（同半视野；第 3 周计时提前于 2026-10-21 完成）", "R9 2026-10-21 第 5 周检查点通过（B4 vs B1）；披露提前运行；更新 lmm.py SHA-256（spatial_impl 未改）"]
 
 paths:
   raw_xlsx: "../VF and clinical information.xlsx"   # 相对 directionA/；原始数据不复制进 data/
@@ -530,8 +530,9 @@ evaluation:
 | R6 | 2026-10-20 | Corrected the status line at the top: it read "draft v2, unpublished", but v2 was published on 2026-10-20 (GitHub tag `v2.0-prereg`, Zenodo DOI 10.5281/zenodo.23494626); R5 and R6 are later revisions. Only that line of text changes; no content changes | User | Yes (no simulated data generated, no competing method run) |
 | R7 | 2026-10-21 | As announced in section 3.4 and rule C-3 of revision R5, appended immediately after calibration finished and `sim_test` was generated: the SHA-256 of `data/sim_test.npz`, the final κ_offset / κ_point, the SHA-256 of `data/sim_calibration.json`, and a summary of the five calibration checks (section 7.2). No endpoint, testing order, decision rule, scenario parameter, or number or hash in section 6 is changed; `sim_test` is not read for any method evaluation | User | Yes (no competing method run; `sim_test` remains sealed until 2027-01-04) |
 | R8 | 2026-10-21 | B4 spatial term locked to spaMM Matérn (within hemifield). Formal timing: random 20 development eyes (seed 20261021); spaMM fit took 30.90 s; linear extrapolation to all 185 development training eyes ≈ 0.0794 h ≤ 24 h, so `spaMM_matern_within_hemifield` is adopted (CAR not used). Implementation in `src/methods/lmm.py` (`spatial_impl` and Matérn parameters); timing script `src/17b_b4_timing_formal.py`; SHA-256 in section 7.3. **Disclosure**: the preregistration announced the week-3 window as 2026-11-02 to 2026-11-08; at the investigator's request, timing and this revision were completed early on 2026-10-21. No endpoint, testing order, decision rule, scenario parameter, or section-6 number/hash is changed; `sim_test` is not read. | User | Yes |
+| R9 | 2026-10-21 | Week-5 checkpoint (§3.5): on `sim_train` (k = 4, scenario-equal-weight cluster RMSE) compare B4 (`spaMM_matern_within_hemifield`) vs B1; 2000 subject-bootstrap resamples of development-set template persons. Result: RMSE_B4 = 0.926384, RMSE_B1 = 1.379045, RMSE_B4 − RMSE_B1 = −0.452661, 95% CI [−0.493479, −0.405430], entirely < 0 → **pass**. **Disclosure**: announced window was 2026-11-16 to 2026-11-22; run early on 2026-10-21 at the investigator's request. First implementation failed due to overshrinkage and Matérn kriging toward the visit mean; after correcting residual Matérn / variance components / EB-BLUP **without** changing the R8-locked string `spaMM_matern_within_hemifield`, the checkpoint was re-run and passed. Updated `src/methods/lmm.py` SHA-256 = `69b7293bb6393cb19a534b3c7d53b6bf99310d3c2afb758fd22e32c603aff477` (section 7.4). Endpoints, test order, decision rules, scenario parameters, section-6 hashes and the R8 `spatial_impl` string are unchanged; `sim_test` was not read. | User | No (this revision records the §3.5 checkpoint outcome) |
 
-Any change after publication is appended as a new row (with date, content and reason) and reported item by item in the paper. Announced follow-up revisions: B4 spatial-term implementation has been fulfilled by R8 (timing completed early on 2026-10-21; see section 7.3); the S3/S4 point-set rules and simulator code hash, and the SHA-256 of `sim_test`, have been fulfilled by R5 and R7 respectively.
+Any change after publication is appended as a new row (with date, content and reason) and reported item by item in the paper. Announced follow-up revisions: the B4 spatial-term choice was fulfilled by R8 (timing completed early on 2026-10-21; see section 7.3); the week-5 B4 vs B1 checkpoint was fulfilled by R9 (run early on 2026-10-21 and passed; see section 7.4); S3/S4 point-set rules and simulator code hashes, and the `sim_test` SHA-256, were fulfilled by R5 and R7 respectively.
 
 ### 7.1 Details of revision R5: S3/S4 point-set generation rules, open simulator details, and code SHA-256
 
@@ -679,3 +680,36 @@ At inference: hierarchical variance components and Matérn parameters are locked
 **Disclosure of early completion**: section 2.4 originally scheduled timing for week 3 (2026-11-02 to 2026-11-08). At the investigator's request, formal timing and this revision were completed and published on **2026-10-21**. The rule itself (20 eyes, linear extrapolation, ≤ 24 h → spaMM else CAR) is unchanged. The B4 spatial implementation is not changed thereafter.
 
 This revision appends R8 to `revisions` in `config.yaml` and records the chosen implementation above. H1–H4, scenarios, truth scale, sealing rules and section-6 hashes are unchanged.
+
+### 7.4 Details of revision R9: week-5 checkpoint (run early; passed) and updated B4 implementation hash
+
+Per §3.5, B4 was compared with B1 on `sim_train` (k = 4, scenario-equal-weight cluster-slope RMSE); the bootstrap unit is the development-set template person (`meta_template_subject`), 2000 resamples.
+
+**Checkpoint results (2026-10-21, Asia/Shanghai; after the implementation fix)**
+
+| Statistic | Value |
+|---|---|
+| RMSE_B4 | 0.926384 |
+| RMSE_B1 | 1.379045 |
+| RMSE_B4 − RMSE_B1 | −0.452661 |
+| 95% CI | [−0.493479, −0.405430] |
+| Decision | **pass** (interval entirely < 0) |
+| `spatial_impl` | `spaMM_matern_within_hemifield` (same string locked by R8) |
+| Record | `results/baselines/b4_vs_b1_checkpoint.json` (SHA-256 `a93624977e71083c0129ba4486f24339b603ad7faccdc488155624a53badc2ba`) |
+| Diagnostic summary | `results/baselines/b4_debug.md` (SHA-256 `e50a4935d338ae204a84c49f2055b87c4e9c7dc54330c3782a7e054066b941e4`) |
+
+**Disclosure of early run**: §3.5 originally scheduled the checkpoint for week 5 (2026-11-16 to 2026-11-22). At the investigator's request it was run on **2026-10-21**. The first run failed (B4 worse than B1); the root cause was implementation-level overshrinkage and kriging toward the visit mean (see diagnostic summary), **not** an error in the R8-locked spatial-term definition string. After the fix, the same protocol was re-run and passed.
+
+**Implementation correction (locked `spatial_impl` string unchanged)**: within-hemifield Matérn smoothing is applied to **residuals** relative to training point means; variance components are re-estimated on the smoothed cluster trajectories; at prediction, cluster OLS is EB/BLUP-shrunk toward the population slope. The timing rule and chosen implementation string in section 7.3 (R8) are unchanged; this revision only updates the implementation-file hash and records the checkpoint.
+
+**Implementation SHA-256 (2026-10-21, this revision)**
+
+| File | SHA-256 |
+|---|---|
+| `src/methods/lmm.py` | `69b7293bb6393cb19a534b3c7d53b6bf99310d3c2afb758fd22e32c603aff477` |
+| `src/18_b4_vs_b1_checkpoint.py` | `6766e4f2b47dc79b30809ee86406bf6b5b91b757a1b59d35ceb263e8443f8d25` |
+
+(The `lmm.py` hash in the R8 section 7.3 table is the pre-fix version; this table supersedes it.)
+
+This revision appends R9 to `revisions` in `config.yaml`. H1–H4, scenarios, truth scale, sealing rules, section-6 hashes and the R8-locked string `spaMM_matern_within_hemifield` are unchanged; `sim_test` was not read.
+
