@@ -2,7 +2,7 @@
 
 > **English translation.** This is a full translation of `preregistration.md` (Simplified Chinese). In case of any discrepancy, the Chinese version is authoritative. Numbers, mathematical expressions and tables are reproduced verbatim; the YAML block in Part 5 is reproduced verbatim (including its Chinese comments) and is byte-for-byte identical in content to `config.yaml`.
 
-> **Status: v2 published on 2026-10-20 (GitHub tag `v2.0-prereg`, Zenodo DOI 10.5281/zenodo.23494626); later revisions R5, R6 and R7 are listed in section 7.** To be published by the user in the public GitHub repository https://github.com/q17632807785-blip/112: after this file is committed, a tag and a release are created, and the release is archived on Zenodo to obtain a DOI (GitHub commit times can be rewritten; the Zenodo archive provides an immutable timestamp). The repository does not contain the raw GRAPE data or per-person derived data (`data/*.parquet`, `split.json`); it contains only this file, `config.yaml`, `g1_locations.csv` and the code; Part 6 gives the SHA-256 of the files that are not made public.
+> **Status: v2 published on 2026-10-20 (GitHub tag `v2.0-prereg`, Zenodo DOI 10.5281/zenodo.23494626); later revisions R5, R6, R7 and R8 are listed in section 7.** To be published by the user in the public GitHub repository https://github.com/q17632807785-blip/112: after this file is committed, a tag and a release are created, and the release is archived on Zenodo to obtain a DOI (GitHub commit times can be rewritten; the Zenodo archive provides an immutable timestamp). The repository does not contain the raw GRAPE data or per-person derived data (`data/*.parquet`, `split.json`); it contains only this file, `config.yaml`, `g1_locations.csv` and the code; Part 6 gives the SHA-256 of the files that are not made public.
 > Date generated: 2026-10-20 (Asia/Shanghai). Basis: `方向A_研究计划_最终版.md` (Direction A research plan, final version; hereafter "the plan") and the 2026-10-20 revisions R1 and R2.
 > This file supersedes `preregistration_draft.md`. Before publication, `config.yaml` must be synchronised verbatim with Part 5.
 
@@ -322,7 +322,7 @@ Using only `sim_train` and the development set: the difference in cluster-level 
 project: GRAPE_directionA_VF_denoising_benchmark
 plan_version: "最终版 2026-10-20"
 created: "2026-10-20"
-revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355", "R5 2026-10-20 S3/S4 点集生成规则、模拟器未定细则与模拟器代码 SHA-256（生成任何模拟数据之前）", "R6 2026-10-20 更正文首状态行：v2 已发布（DOI 10.5281/zenodo.23494626）", "R7 2026-10-21 sim_test SHA-256、最终校准 κ 与 sim_calibration.json SHA-256"]
+revisions: ["R1 2026-10-20 Tobit 模板基线", "R2 2026-10-20 EB-GK 描述性对照", "R3 2026-10-20 发布前重新生成数据步骤文件并更新第 6 部分", "R4 2026-10-20 以本版本整体替换已被取代的草稿 3129355", "R5 2026-10-20 S3/S4 点集生成规则、模拟器未定细则与模拟器代码 SHA-256（生成任何模拟数据之前）", "R6 2026-10-20 更正文首状态行：v2 已发布（DOI 10.5281/zenodo.23494626）", "R7 2026-10-21 sim_test SHA-256、最终校准 κ 与 sim_calibration.json SHA-256", "R8 2026-10-21 B4 空间项锁定为 spaMM Matérn（同半视野；第 3 周计时提前于 2026-10-21 完成）"]
 
 paths:
   raw_xlsx: "../VF and clinical information.xlsx"   # 相对 directionA/；原始数据不复制进 data/
@@ -529,8 +529,9 @@ evaluation:
 | R5 | 2026-10-20 | As announced in section 3.4, appended before any simulated data are generated: the point-set generation rules for the S3 arc and the S4 scotoma, the implementation details of the simulator that the text left open, and the SHA-256 of every simulator source file (section 7.1). No endpoint, testing order, decision rule, scenario parameter, or number or hash in section 6 is changed | User | Yes (no simulated data generated, no competing method run) |
 | R6 | 2026-10-20 | Corrected the status line at the top: it read "draft v2, unpublished", but v2 was published on 2026-10-20 (GitHub tag `v2.0-prereg`, Zenodo DOI 10.5281/zenodo.23494626); R5 and R6 are later revisions. Only that line of text changes; no content changes | User | Yes (no simulated data generated, no competing method run) |
 | R7 | 2026-10-21 | As announced in section 3.4 and rule C-3 of revision R5, appended immediately after calibration finished and `sim_test` was generated: the SHA-256 of `data/sim_test.npz`, the final κ_offset / κ_point, the SHA-256 of `data/sim_calibration.json`, and a summary of the five calibration checks (section 7.2). No endpoint, testing order, decision rule, scenario parameter, or number or hash in section 6 is changed; `sim_test` is not read for any method evaluation | User | Yes (no competing method run; `sim_test` remains sealed until 2027-01-04) |
+| R8 | 2026-10-21 | B4 spatial term locked to spaMM Matérn (within hemifield). Formal timing: random 20 development eyes (seed 20261021); spaMM fit took 30.90 s; linear extrapolation to all 185 development training eyes ≈ 0.0794 h ≤ 24 h, so `spaMM_matern_within_hemifield` is adopted (CAR not used). Implementation in `src/methods/lmm.py` (`spatial_impl` and Matérn parameters); timing script `src/17b_b4_timing_formal.py`; SHA-256 in section 7.3. **Disclosure**: the preregistration announced the week-3 window as 2026-11-02 to 2026-11-08; at the investigator's request, timing and this revision were completed early on 2026-10-21. No endpoint, testing order, decision rule, scenario parameter, or section-6 number/hash is changed; `sim_test` is not read. | User | Yes |
 
-Any change after publication is appended as a new row (with date, content and reason) and reported item by item in the paper. Announced follow-up revisions: B4 spatial-term implementation (week 3); the S3/S4 point-set rules and simulator code hash, and the SHA-256 of `sim_test`, have been fulfilled by R5 and R7 respectively.
+Any change after publication is appended as a new row (with date, content and reason) and reported item by item in the paper. Announced follow-up revisions: B4 spatial-term implementation has been fulfilled by R8 (timing completed early on 2026-10-21; see section 7.3); the S3/S4 point-set rules and simulator code hash, and the SHA-256 of `sim_test`, have been fulfilled by R5 and R7 respectively.
 
 ### 7.1 Details of revision R5: S3/S4 point-set generation rules, open simulator details, and code SHA-256
 
@@ -646,3 +647,35 @@ Per rule C-3 of revision R5, `sim_test` was generated after calibration reached 
 Per rule C-2: only κ_offset and κ_point are tuned; observed MS slope SD and the censoring fraction cannot be tuned directly, and any remaining gap after 3 rounds is reported in the text. Only observed MS slope SD missed its tolerance (simulated side narrower); the gap is recorded as-is. Scenario parameters, templates and mix weights are not changed, and calibration is not reopened. The other four of the five checks all passed at the final κ.
 
 This revision also sets `sim_test_seal.sha256` in `config.yaml` from `null` to the `sim_test.npz` hash above, and appends R7 to `revisions`. No hash in section 6 and no simulator source file is changed.
+
+### 7.3 Details of revision R8: B4 spatial-term implementation (week-3 timing completed early)
+
+Per the fixed rules in section 2.4, spaMM Matérn variance-component estimation (within hemifield; separate fits above/below the horizontal meridian) was timed on a random sample of 20 development eyes and linearly extrapolated by eye count to all development training eyes.
+
+**Timing results (2026-10-21, Asia/Shanghai)**
+
+| Item | Value |
+|---|---|
+| Random seed | 20261021 |
+| Eyes timed | 20 |
+| Development training eyes (total) | 185 |
+| spaMM fit time | 30.9003 s (wall 32.02 s) |
+| Extrapolation to all development training eyes | 0.079397 h |
+| 24-hour threshold | not exceeded → **adopt spaMM Matérn** |
+| Chosen implementation | `spaMM_matern_within_hemifield` |
+| Timing record | `results/baselines/b4_timing_week3_formal.json` (local; need not be in the public repo) |
+
+Formula (each hemifield): `y ~ 1 + t + (1+t|eye) + (1+t|eye_cl) + (1|eye_vis) + Matern(1|x+yy)`, REML, R `spaMM` 4.7.17.
+
+**Implementation SHA-256 (2026-10-21)**
+
+| File | SHA-256 |
+|---|---|
+| `src/methods/lmm.py` | `1a5f8f23e129a462a907b8016a2ec7f197d74556cb53629ad02c58e8c94d5a12` |
+| `src/17b_b4_timing_formal.py` | `6b4e76fd552265ad915fe83f092746dfdfbe65972eeaa6d5d8a091e73fd09227` |
+
+At inference: hierarchical variance components and Matérn parameters are locked on training eyes (ν = 0.5; ρ aligned so correlation at 6° matches the development-set neighbour residual correlation; partial sill and nugget from residual decomposition); for a new eye, parameters are held fixed, each visit is Matérn-GLS-smoothed within hemifield, then cluster-level two-level BLUP is applied. `B4.spatial_impl` is the fixed string `spaMM_matern_within_hemifield`.
+
+**Disclosure of early completion**: section 2.4 originally scheduled timing for week 3 (2026-11-02 to 2026-11-08). At the investigator's request, formal timing and this revision were completed and published on **2026-10-21**. The rule itself (20 eyes, linear extrapolation, ≤ 24 h → spaMM else CAR) is unchanged. The B4 spatial implementation is not changed thereafter.
+
+This revision appends R8 to `revisions` in `config.yaml` and records the chosen implementation above. H1–H4, scenarios, truth scale, sealing rules and section-6 hashes are unchanged.
